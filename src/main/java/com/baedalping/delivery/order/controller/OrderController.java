@@ -1,7 +1,9 @@
 package com.baedalping.delivery.order.controller;
 
 import com.baedalping.delivery.order.dto.OrderCreateRequestDto;
+import com.baedalping.delivery.order.dto.OrderDTO;
 import com.baedalping.delivery.order.entity.Order;
+import com.baedalping.delivery.order.entity.OrderDetail;
 import com.baedalping.delivery.order.service.OrderService;
 import java.util.List;
 import java.util.UUID;
@@ -25,8 +27,10 @@ public class OrderController {
     TODO: return 객체 공통 dto로 변경
      */
     @PostMapping
-    public Order createOrder(@RequestBody OrderCreateRequestDto orderCreateRequest) {
-        return orderService.createOrder(orderCreateRequest.getOrder(), orderCreateRequest.getOrderDetails());
+    public OrderDTO createOrder(@RequestBody OrderCreateRequestDto orderRequest) {
+        Order order = orderRequest.getOrder();
+        List<OrderDetail> orderDetails = orderRequest.getOrderDetails();
+        return orderService.createOrder(order, orderDetails);
     }
 
     // 가게 주문 조회

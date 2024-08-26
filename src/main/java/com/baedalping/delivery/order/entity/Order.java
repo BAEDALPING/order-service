@@ -1,11 +1,14 @@
 package com.baedalping.delivery.order.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,6 +34,10 @@ public class Order {
 
     @Column(name = "store_id", columnDefinition = "UUID", nullable = false)
     private UUID storeId;
+
+    @Setter
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderDetail> orderDetails;
 
 //    @Column(name = "order_date", nullable = false)
 //    private LocalDateTime orderDate;

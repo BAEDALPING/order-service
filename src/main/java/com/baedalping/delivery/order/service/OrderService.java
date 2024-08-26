@@ -1,13 +1,17 @@
 package com.baedalping.delivery.order.service;
 
+import com.baedalping.delivery.order.dto.OrderDTO;
+import com.baedalping.delivery.order.dto.OrderDetailDTO;
 import com.baedalping.delivery.order.entity.Order;
 import com.baedalping.delivery.order.entity.OrderDetail;
 import com.baedalping.delivery.order.entity.OrderStatus;
 import com.baedalping.delivery.order.repository.OrderRepository;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,26 +20,69 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderDetailService orderDetailService;
 
-    public Order createOrder(Order order, List<OrderDetail> orderDetails) {
+    @Transactional
+    public OrderDTO createOrder(Order order, List<OrderDetail> orderDetails) {
         int totalQuantity = 0;
         int totalPrice = 0;
 
         for (OrderDetail orderDetail : orderDetails) {
+            int subtotal = orderDetail.getQuantity() * orderDetail.getUnitPrice();
+            orderDetail.setSubtotal(subtotal);
+
             totalQuantity += orderDetail.getQuantity();
-            totalPrice += orderDetail.getQuantity() * orderDetail.getUnitPrice();
+            totalPrice += subtotal;
+            orderDetail.setOrder(order);
         }
 
-        // 1. 주문 생성 및 저장
-        order.setState(OrderStatus.PENDING);  // Enum으로 상태 관리
+        order.setState(OrderStatus.PENDING);
         order.setTotalQuantity(totalQuantity);
         order.setTotalPrice(totalPrice);
+        order.setOrderDetails(orderDetails);
+
         Order savedOrder = orderRepository.save(order);
+        orderDetailService.saveOrderDetails(orderDetails);
 
-        // 2. 주문 상세 정보 저장
-        orderDetailService.saveOrderDetails(savedOrder.getOrderId(), orderDetails);
-
-        return savedOrder;
+        return convertToOrderDTO(savedOrder);
     }
+
+    public OrderDTO getOrderById(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+        return convertToOrderDTO(order);
+    }
+
+    private OrderDTO convertToOrderDTO(Order order) {
+        OrderDTO orderDTO = new OrderDTO();
+        orderDTO.setOrderId(order.getOrderId());
+        orderDTO.setUserId(order.getUserId());
+        orderDTO.setStoreId(order.getStoreId());
+        orderDTO.setState(order.getState());
+        orderDTO.setTotalQuantity(order.getTotalQuantity());
+        orderDTO.setTotalPrice(order.getTotalPrice());
+        orderDTO.setShippingAddress(order.getShippingAddress());
+        orderDTO.setIsPublic(order.getIsPublic());
+
+        List<OrderDetailDTO> orderDetailDTOs = order.getOrderDetails().stream()
+            .map(this::convertToOrderDetailDTO)
+            .collect(Collectors.toList());
+        orderDTO.setOrderDetails(orderDetailDTOs);
+
+        return orderDTO;
+    }
+
+    private OrderDetailDTO convertToOrderDetailDTO(OrderDetail orderDetail) {
+        OrderDetailDTO orderDetailDTO = new OrderDetailDTO();
+        orderDetailDTO.setOrderDetailId(orderDetail.getOrderDetailId());
+        orderDetailDTO.setProductId(orderDetail.getProductId());
+        orderDetailDTO.setProductName(orderDetail.getProductName());
+        orderDetailDTO.setQuantity(orderDetail.getQuantity());
+        orderDetailDTO.setUnitPrice(orderDetail.getUnitPrice());
+        orderDetailDTO.setSubtotal(orderDetail.getSubtotal());
+        return orderDetailDTO;
+    }
+
+
+
 
     public List<Order> getOrdersByStoreId(UUID storeId) {
         return null;
@@ -49,9 +96,6 @@ public class OrderService {
         return null;
     }
 
-    public Order getOrderById(UUID orderId) {
-        return null;
-    }
 
     public Order cancelOrder(UUID orderId) {
         return null;
