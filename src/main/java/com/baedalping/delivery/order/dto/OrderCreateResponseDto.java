@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class OrderDTO {
+public class OrderCreateResponseDto {
     private UUID orderId;
     private Long userId;
     private UUID storeId;
@@ -20,7 +20,7 @@ public class OrderDTO {
     private Integer totalPrice;
     private String shippingAddress;
     private Boolean isPublic;
-    private List<OrderDetailDTO> orderDetails; // OrderDetailDTO로 변경
+    private List<OrderDetailResponseDto> orderDetails; // OrderDetailDTO로 변경
 
     // 기본 생성자, 필요시 커스텀 생성자 추가
 }

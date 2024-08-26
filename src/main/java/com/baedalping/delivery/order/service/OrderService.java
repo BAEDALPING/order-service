@@ -1,7 +1,7 @@
 package com.baedalping.delivery.order.service;
 
-import com.baedalping.delivery.order.dto.OrderDTO;
-import com.baedalping.delivery.order.dto.OrderDetailDTO;
+import com.baedalping.delivery.order.dto.OrderCreateResponseDto;
+import com.baedalping.delivery.order.dto.OrderDetailResponseDto;
 import com.baedalping.delivery.order.entity.Order;
 import com.baedalping.delivery.order.entity.OrderDetail;
 import com.baedalping.delivery.order.entity.OrderStatus;
@@ -21,7 +21,7 @@ public class OrderService {
     private final OrderDetailService orderDetailService;
 
     @Transactional
-    public OrderDTO createOrder(Order order, List<OrderDetail> orderDetails) {
+    public OrderCreateResponseDto createOrder(Order order, List<OrderDetail> orderDetails) {
         int totalQuantity = 0;
         int totalPrice = 0;
 
@@ -45,14 +45,14 @@ public class OrderService {
         return convertToOrderDTO(savedOrder);
     }
 
-    public OrderDTO getOrderById(UUID orderId) {
+    public OrderCreateResponseDto getOrderById(UUID orderId) {
         Order order = orderRepository.findById(orderId)
             .orElseThrow(() -> new IllegalArgumentException("Order not found"));
         return convertToOrderDTO(order);
     }
 
-    private OrderDTO convertToOrderDTO(Order order) {
-        OrderDTO orderDTO = new OrderDTO();
+    private OrderCreateResponseDto convertToOrderDTO(Order order) {
+        OrderCreateResponseDto orderDTO = new OrderCreateResponseDto();
         orderDTO.setOrderId(order.getOrderId());
         orderDTO.setUserId(order.getUserId());
         orderDTO.setStoreId(order.getStoreId());
@@ -62,7 +62,7 @@ public class OrderService {
         orderDTO.setShippingAddress(order.getShippingAddress());
         orderDTO.setIsPublic(order.getIsPublic());
 
-        List<OrderDetailDTO> orderDetailDTOs = order.getOrderDetails().stream()
+        List<OrderDetailResponseDto> orderDetailDTOs = order.getOrderDetails().stream()
             .map(this::convertToOrderDetailDTO)
             .collect(Collectors.toList());
         orderDTO.setOrderDetails(orderDetailDTOs);
@@ -70,8 +70,8 @@ public class OrderService {
         return orderDTO;
     }
 
-    private OrderDetailDTO convertToOrderDetailDTO(OrderDetail orderDetail) {
-        OrderDetailDTO orderDetailDTO = new OrderDetailDTO();
+    private OrderDetailResponseDto convertToOrderDetailDTO(OrderDetail orderDetail) {
+        OrderDetailResponseDto orderDetailDTO = new OrderDetailResponseDto();
         orderDetailDTO.setOrderDetailId(orderDetail.getOrderDetailId());
         orderDetailDTO.setProductId(orderDetail.getProductId());
         orderDetailDTO.setProductName(orderDetail.getProductName());

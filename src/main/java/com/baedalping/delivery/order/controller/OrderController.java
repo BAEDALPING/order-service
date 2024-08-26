@@ -1,19 +1,16 @@
 package com.baedalping.delivery.order.controller;
 
+import com.baedalping.delivery.global.common.ApiResponse;
 import com.baedalping.delivery.order.dto.OrderCreateRequestDto;
-import com.baedalping.delivery.order.dto.OrderDTO;
+import com.baedalping.delivery.order.dto.OrderCreateResponseDto;
 import com.baedalping.delivery.order.entity.Order;
 import com.baedalping.delivery.order.entity.OrderDetail;
 import com.baedalping.delivery.order.service.OrderService;
 import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -24,13 +21,12 @@ public class OrderController {
 
     /*
     TODO: body로 받아오고 있는 주문 상세 내역을 Redis에서 가져오도록 변경할 것
-    TODO: return 객체 공통 dto로 변경
      */
     @PostMapping
-    public OrderDTO createOrder(@RequestBody OrderCreateRequestDto orderRequest) {
+    public ApiResponse<OrderCreateResponseDto> createOrder(@RequestBody OrderCreateRequestDto orderRequest) {
         Order order = orderRequest.getOrder();
         List<OrderDetail> orderDetails = orderRequest.getOrderDetails();
-        return orderService.createOrder(order, orderDetails);
+        return ApiResponse.created(orderService.createOrder(order, orderDetails));
     }
 
     // 가게 주문 조회

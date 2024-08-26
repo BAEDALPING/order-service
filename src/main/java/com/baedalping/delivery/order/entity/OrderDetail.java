@@ -1,5 +1,6 @@
 package com.baedalping.delivery.order.entity;
 
+import com.baedalping.delivery.global.common.AuditField;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,7 +23,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Getter
-public class OrderDetail {
+public class OrderDetail extends AuditField {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -52,25 +53,4 @@ public class OrderDetail {
     private Integer subtotal;
 
 
-
-    // TODO: Audit 설정 이후 기능 테스트
-//    @CreatedDate
-//    @Column(name = "created_at", nullable = false, updatable = false)
-//    private LocalDateTime createdAt;
-//
-//    @Column(name = "created_by", length = 100, nullable = false)
-//    private String createdBy = "system";
-//
-//    @LastModifiedDate
-//    @Column(name = "updated_at")
-//    private LocalDateTime updatedAt;
-//
-//    @Column(name = "updated_by", length = 100)
-//    private String updatedBy;
-//
-//    @Column(name = "deleted_at")
-//    private LocalDateTime deletedAt;
-//
-//    @Column(name = "deleted_by", length = 100)
-//    private String deletedBy;
 }

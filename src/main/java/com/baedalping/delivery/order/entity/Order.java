@@ -1,5 +1,6 @@
 package com.baedalping.delivery.order.entity;
 
+import com.baedalping.delivery.global.common.AuditField;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,7 +23,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class Order {
+public class Order extends AuditField {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -60,25 +61,9 @@ public class Order {
     @Column(name = "is_public", nullable = false)
     private Boolean isPublic = true;
 
-    // TODO: Audit 설정 이후 기능 테스트
 
-    //    @Column(name = "created_at", nullable = false, updatable = false)
-//    private LocalDateTime createdAt;
-//
-//    @Column(name = "created_by", length = 100, nullable = false)
-//    private String createdBy;
-//
-//    @Column(name = "updated_at")
-//    private LocalDateTime updatedAt;
-//
-//    @Column(name = "updated_by", length = 100)
-//    private String updatedBy;
-//
-//    @Column(name = "deleted_at")
-//    private LocalDateTime deletedAt;
-//
-//    @Column(name = "deleted_by", length = 100)
-//    private String deletedBy;
+
+
 
 
 }
