@@ -1,5 +1,7 @@
 package com.baedalping.delivery.order.service;
 
+import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
+import com.baedalping.delivery.global.common.exception.ErrorCode;
 import com.baedalping.delivery.order.dto.OrderCreateResponseDto;
 import com.baedalping.delivery.order.dto.OrderDetailResponseDto;
 import com.baedalping.delivery.order.entity.Order;
@@ -22,9 +24,13 @@ public class OrderService {
 
     @Transactional
     public OrderCreateResponseDto createOrder(Order order, List<OrderDetail> orderDetails) {
+        // 1. 유효성 검사
+        validateOrderAndDetails(order, orderDetails);
+
         int totalQuantity = 0;
         int totalPrice = 0;
 
+        // 2. 주문 상세 정보 처리 및 총계 계산
         for (OrderDetail orderDetail : orderDetails) {
             int subtotal = orderDetail.getQuantity() * orderDetail.getUnitPrice();
             orderDetail.setSubtotal(subtotal);
@@ -34,22 +40,36 @@ public class OrderService {
             orderDetail.setOrder(order);
         }
 
+        // 3. 주문 정보 설정
         order.setState(OrderStatus.PENDING);
         order.setTotalQuantity(totalQuantity);
         order.setTotalPrice(totalPrice);
         order.setOrderDetails(orderDetails);
 
-        Order savedOrder = orderRepository.save(order);
-        orderDetailService.saveOrderDetails(orderDetails);
-
-        return convertToOrderDTO(savedOrder);
+        // 4. 데이터베이스에 저장 및 예외 처리
+        try {
+            Order savedOrder = orderRepository.save(order);
+            orderDetailService.saveOrderDetails(orderDetails);
+            return convertToOrderDTO(savedOrder);
+        } catch (Exception e) {
+            throw new DeliveryApplicationException(ErrorCode.NOT_FOUND_ORDER);
+        }
     }
 
-    public OrderCreateResponseDto getOrderById(UUID orderId) {
-        Order order = orderRepository.findById(orderId)
-            .orElseThrow(() -> new IllegalArgumentException("Order not found"));
-        return convertToOrderDTO(order);
+    // 유효성 검사 메서드 분리
+    private void validateOrderAndDetails(Order order, List<OrderDetail> orderDetails) {
+        if (order == null || orderDetails == null || orderDetails.isEmpty()) {
+            throw new DeliveryApplicationException(ErrorCode.NOT_FOUND_ORDER);
+        }
     }
+
+
+
+//    public OrderCreateResponseDto getOrderById(UUID orderId) {
+//        Order order = orderRepository.findById(orderId)
+//            .orElseThrow(() -> new IllegalArgumentException("Order not found"));
+//        return convertToOrderDTO(order);
+//    }
 
     private OrderCreateResponseDto convertToOrderDTO(Order order) {
         OrderCreateResponseDto orderDTO = new OrderCreateResponseDto();
@@ -80,8 +100,6 @@ public class OrderService {
         orderDetailDTO.setSubtotal(orderDetail.getSubtotal());
         return orderDetailDTO;
     }
-
-
 
 
     public List<Order> getOrdersByStoreId(UUID storeId) {

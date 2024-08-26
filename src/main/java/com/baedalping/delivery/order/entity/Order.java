@@ -4,6 +4,7 @@ import com.baedalping.delivery.global.common.AuditField;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -44,6 +45,7 @@ public class Order extends AuditField {
 //    private LocalDateTime orderDate;
 
     @Setter
+    @Enumerated
     @Column(name = "state", length = 20, nullable = false)
     private OrderStatus state;
 
