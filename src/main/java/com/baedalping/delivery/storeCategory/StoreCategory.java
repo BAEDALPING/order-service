@@ -1,5 +1,6 @@
 package com.baedalping.delivery.storeCategory;
 
+import com.baedalping.delivery.global.common.AuditField;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(name = "p_store_categories")
-public class StoreCategory {
+public class StoreCategory extends AuditField {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   @Column(name = "store_category_id")

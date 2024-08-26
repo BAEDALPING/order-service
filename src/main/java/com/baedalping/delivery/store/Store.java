@@ -1,5 +1,6 @@
 package com.baedalping.delivery.store;
 
+import com.baedalping.delivery.global.common.AuditField;
 import com.baedalping.delivery.product.Product;
 import com.baedalping.delivery.productCategory.ProductCategory;
 import com.baedalping.delivery.storeCategory.StoreCategory;
@@ -26,7 +27,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(name = "p_stores")
-public class Store {
+public class Store extends AuditField {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   @Column(name = "store_id")

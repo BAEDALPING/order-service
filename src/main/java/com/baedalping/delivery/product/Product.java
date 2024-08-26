@@ -1,6 +1,7 @@
 package com.baedalping.delivery.product;
 
 
+import com.baedalping.delivery.global.common.AuditField;
 import com.baedalping.delivery.productCategory.ProductCategory;
 import com.baedalping.delivery.store.Store;
 import jakarta.persistence.*;
@@ -14,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Table(name = "p_products")
-public class Product {
+public class Product extends AuditField {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "product_id")
@@ -31,8 +32,8 @@ public class Product {
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
-    @Column(precision = 7, scale = 0, nullable = false)
-    private BigDecimal productPrice;
+    @Column(nullable = false)
+    private Integer productPrice;
 
     @Column(columnDefinition = "TEXT")
     private String productDetail;
@@ -41,5 +42,11 @@ public class Product {
     private String productImgUrl;
 
     private boolean isPublic = true;
+
+
+    public void addStore(Store store){
+        this.store = store;
+        store.getProductList().add(this);
+    }
 
 }
