@@ -9,10 +9,10 @@ import org.springframework.http.HttpStatus;
 @NoArgsConstructor
 public class ApiResponse<T> {
   private HttpStatus status;
-  private String message;
+  private Object message;
   private T data;
 
-  private ApiResponse(HttpStatus status, String message, T data) {
+  private ApiResponse(HttpStatus status, Object message, T data) {
     this.status = status;
     this.message = message;
     this.data = data;
@@ -24,6 +24,10 @@ public class ApiResponse<T> {
 
   public static <T> ApiResponse<T> error(ErrorCode errorCode, T data) {
     return new ApiResponse<>(errorCode.getStatus(), errorCode.getMessage(), data);
+  }
+
+  public static ApiResponse<Void> error(HttpStatus httpStatus, Object message) {
+    return new ApiResponse<>(httpStatus, message, null);
   }
 
   public static <T> ApiResponse<T> created(T data) {
