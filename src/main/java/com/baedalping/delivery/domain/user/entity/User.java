@@ -49,7 +49,7 @@ public class User extends AuditField {
   private final List<UserAddress> addressList = new ArrayList<>();
 
   @Column(name = "is_public", nullable = false)
-  private boolean isPublic = false;
+  private boolean isPublic = true;
 
   @Builder
   private User(String username, String password, String email) {
@@ -62,8 +62,8 @@ public class User extends AuditField {
     this.role = role;
   }
 
-  public void setPublicUser() {
-    this.isPublic = true;
+  public void setInvisible() {
+    this.isPublic = false;
   }
 
   public void addAddress(UserAddress address) {
