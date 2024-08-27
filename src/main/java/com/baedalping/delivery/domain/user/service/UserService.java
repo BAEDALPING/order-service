@@ -26,11 +26,8 @@ public class UserService {
   }
 
   private void validateUniqueEmail(String email) {
-    userRepository
-        .findByEmail(email)
-        .ifPresent(
-            user -> {
-              throw new DeliveryApplicationException(ErrorCode.DUPLICATED_USER);
-            });
+    if (userRepository.existsByEmail(email)) {
+      throw new DeliveryApplicationException(ErrorCode.DUPLICATED_USER);
+    }
   }
 }
