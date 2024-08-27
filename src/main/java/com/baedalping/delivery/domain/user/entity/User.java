@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -23,6 +24,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Table(name = "P_USERS")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLRestriction("deleted_at is NULL")
+@Getter
 public class User extends AuditField {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,7 +46,7 @@ public class User extends AuditField {
   private UserRole role = UserRole.CUSTOMER;
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<UserAddress> addressList = new ArrayList<>();
+  private final List<UserAddress> addressList = new ArrayList<>();
 
   @Column(name = "is_public", nullable = false)
   private boolean isPublic = false;
@@ -60,7 +62,7 @@ public class User extends AuditField {
     this.role = role;
   }
 
-  public void isPublic(){
+  public void setPublicUser() {
     this.isPublic = true;
   }
 
