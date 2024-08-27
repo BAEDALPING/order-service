@@ -78,7 +78,7 @@ class CartServiceTest {
             () -> cartService.addProductToCart(userId, cartProductDto));
 
         // 발생한 예외의 에러 코드가 INVALID_STORE인지 확인
-        assertEquals(ErrorCode.INVALID_STORE, exception.getErrorCode());
+        assertEquals(ErrorCode.CART_ONLY_ONE_STORE_ALLOWED, exception.getErrorCode());
     }
 
     // 장바구니에 있는 특정 상품의 수량을 변경하는 기능을 테스트
@@ -107,7 +107,7 @@ class CartServiceTest {
             () -> cartService.updateProductQuantity(userId, "product1", 5));
 
         // 발생한 예외의 에러 코드가 ITEM_NOT_FOUND_IN_CART인지 확인
-        assertEquals(ErrorCode.ITEM_NOT_FOUND_IN_CART, exception.getErrorCode());
+        assertEquals(ErrorCode.NOT_FOUND_PRODUCT_IN_CART, exception.getErrorCode());
     }
 
     // 장바구니에서 특정 상품을 삭제하는 기능을 테스트
@@ -136,7 +136,7 @@ class CartServiceTest {
             () -> cartService.removeItemFromCart(userId, "product1"));
 
         // 발생한 예외의 에러 코드가 ITEM_NOT_FOUND_IN_CART인지 확인
-        assertEquals(ErrorCode.ITEM_NOT_FOUND_IN_CART, exception.getErrorCode());
+        assertEquals(ErrorCode.NOT_FOUND_PRODUCT_IN_CART, exception.getErrorCode());
     }
 
     // 장바구니를 비우는 기능을 테스트

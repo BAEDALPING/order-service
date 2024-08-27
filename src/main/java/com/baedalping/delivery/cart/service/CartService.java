@@ -37,7 +37,7 @@ public class CartService {
         if (!currentCartItems.isEmpty()) {
             String existingStoreId = currentCartItems.keySet().iterator().next().split(":")[0];
             if (!existingStoreId.equals(cartProduct.getStoreId())) {
-                throw new DeliveryApplicationException(ErrorCode.INVALID_STORE);
+                throw new DeliveryApplicationException(ErrorCode.CART_ONLY_ONE_STORE_ALLOWED);
             }
         }
 
@@ -91,7 +91,7 @@ public class CartService {
         }
 
         if (!itemFound) {
-            throw new DeliveryApplicationException(ErrorCode.ITEM_NOT_FOUND_IN_CART);
+            throw new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT_IN_CART);
         }
 
         return hashOps.entries(cartKey); // 현재 장바구니 상태를 반환
@@ -116,7 +116,7 @@ public class CartService {
 
         // 장바구니에 해당 상품이 없을 경우 예외 발생
         if (!itemFound) {
-            throw new DeliveryApplicationException(ErrorCode.ITEM_NOT_FOUND_IN_CART);
+            throw new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT_IN_CART);
         }
 
         return hashOps.entries(cartKey); // 현재 장바구니 상태를 반환
