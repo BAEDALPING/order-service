@@ -24,6 +24,7 @@ public class UserAddress extends AuditField {
   @GeneratedValue(strategy = GenerationType.UUID)
   @Column(name = "address_id")
   private UUID addressId;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
@@ -44,7 +45,8 @@ public class UserAddress extends AuditField {
     this.zipcode = zipcode;
     this.alias = alias;
   }
-  public void setUser(User user){
+
+  public void setUser(User user) {
     this.user = user;
   }
 }

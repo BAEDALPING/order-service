@@ -10,8 +10,7 @@ public enum UserRole {
   OWNER(102, "OWNER"),
 
   MANAGER(201, "MANAGER"),
-  ADMIN(202, "ADMIN")
-  ;
+  ADMIN(202, "ADMIN");
 
   private long roleNum;
   private String roleName;
