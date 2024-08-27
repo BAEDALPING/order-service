@@ -52,7 +52,7 @@ public class User extends AuditField {
   private boolean isPublic = false;
 
   @Builder
-  public User(String username, String password, String email) {
+  private User(String username, String password, String email) {
     this.username = username;
     this.password = password;
     this.email = email;
