@@ -2,7 +2,6 @@ package com.baedalping.delivery.store;
 
 import com.baedalping.delivery.global.common.AuditField;
 import com.baedalping.delivery.product.Product;
-import com.baedalping.delivery.productCategory.ProductCategory;
 import com.baedalping.delivery.storeCategory.StoreCategory;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -12,11 +11,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
-import java.sql.Time;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -40,11 +38,11 @@ public class Store extends AuditField {
   @JoinColumn(name = "user_id", nullable = false)
   private User user;*/
 
-  @OneToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "store_category_id",nullable = false)
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "store_category_id", nullable = false)
   private StoreCategory storeCategory;
 
-  @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Product> productList = new ArrayList<>();
 
   private String storePhone;
@@ -54,10 +52,26 @@ public class Store extends AuditField {
   @Column(columnDefinition = "TEXT")
   private String storeDetail;
 
-  private Time openTime;
+  private LocalTime openTime;
 
-  private Time closeTime;
+  private LocalTime closeTime;
 
   private boolean isPublic = true;
+
+
+  public void addStoreCategory(StoreCategory storeCategory){
+    this.storeCategory = storeCategory;
+    storeCategory.getStoreList().add(this);
+  }
+
+  public Store(StoreCreateRequestDto storeCreateRequestDto, StoreCategory storeCategory){
+    this.storeName = storeCreateRequestDto.getStoreName();
+    this.storePhone = storeCreateRequestDto.getStorePhone();
+    this.storeAddress = storeCreateRequestDto.getStoreAddress();
+    this.storeDetail = storeCreateRequestDto.getStoreDetail();
+    this.openTime = storeCreateRequestDto.getOpenTime();
+    this.closeTime = storeCreateRequestDto.getCloseTime();
+    this.storeCategory = storeCategory;
+  }
 
 }
