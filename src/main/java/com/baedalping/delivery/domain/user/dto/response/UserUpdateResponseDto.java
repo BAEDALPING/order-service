@@ -1,4 +1,4 @@
-package com.baedalping.delivery.domain.user.dto;
+package com.baedalping.delivery.domain.user.dto.response;
 
 import com.baedalping.delivery.domain.user.entity.User;
 import java.time.LocalDateTime;

@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import com.baedalping.delivery.domain.user.controller.UserController;
-import com.baedalping.delivery.domain.user.dto.UserCreateRequestDto;
+import com.baedalping.delivery.domain.user.dto.request.UserCreateRequestDto;
 import com.baedalping.delivery.domain.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
