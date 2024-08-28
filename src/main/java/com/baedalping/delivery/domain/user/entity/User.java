@@ -58,6 +58,12 @@ public class User extends AuditField {
     this.email = email;
   }
 
+  public void updateInfo(String username, String password, String email) {
+    this.username = username;
+    this.password = password;
+    this.email = email;
+  }
+
   public void updateUserRole(UserRole role) {
     this.role = role;
   }
