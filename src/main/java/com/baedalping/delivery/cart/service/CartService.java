@@ -90,6 +90,13 @@ public class CartService {
     private String getProductKey(String storeId, String productId) {
         return storeId + ":" + productId;
     }
+
+    public Map<String, Integer> getCartProducts(Long userId) {
+        HashOperations<String, String, Integer> hashOps = redisTemplate.opsForHash();
+        String cartKey = CART_PREFIX + userId;
+
+        return hashOps.entries(cartKey);
+    }
 }
 
 

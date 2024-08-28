@@ -3,10 +3,9 @@ package com.baedalping.delivery.order.controller;
 import com.baedalping.delivery.global.common.ApiResponse;
 import com.baedalping.delivery.order.dto.OrderCreateRequestDto;
 import com.baedalping.delivery.order.dto.OrderCreateResponseDto;
-import com.baedalping.delivery.order.entity.Order;
-import com.baedalping.delivery.order.entity.OrderDetail;
 import com.baedalping.delivery.order.service.OrderService;
-import java.util.List;
+import jakarta.validation.Valid;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,16 +16,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/orders")
 @RequiredArgsConstructor
 public class OrderController {
+
     private final OrderService orderService;
 
     /*
     TODO: body로 받아오고 있는 주문 상세 내역을 Redis에서 가져오도록 변경할 것
      */
     @PostMapping
-    public ApiResponse<OrderCreateResponseDto> createOrder(@RequestBody OrderCreateRequestDto orderRequest) {
-        Order order = orderRequest.getOrder();
-        List<OrderDetail> orderDetails = orderRequest.getOrderDetails();
-        return ApiResponse.created(orderService.createOrder(order, orderDetails));
+    public ApiResponse<OrderCreateResponseDto> createOrder(
+        @RequestBody @Valid OrderCreateRequestDto orderRequest) {
+        return ApiResponse.created(
+            orderService.createOrder(UUID.fromString(orderRequest.getAddressId())));
     }
 
     // 가게 주문 조회

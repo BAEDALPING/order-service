@@ -2,6 +2,7 @@ package com.baedalping.delivery.order.dto;
 
 
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class OrderDetailResponseDto {
     private UUID orderDetailId;
     private UUID productId;
@@ -17,6 +19,5 @@ public class OrderDetailResponseDto {
     private Integer unitPrice;
     private Integer subtotal;
 
-    // 기본 생성자, 필요시 커스텀 생성자 추가
 }
 

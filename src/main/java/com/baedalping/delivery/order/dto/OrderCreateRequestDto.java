@@ -1,28 +1,17 @@
 package com.baedalping.delivery.order.dto;
 
-import com.baedalping.delivery.order.entity.Order;
-import com.baedalping.delivery.order.entity.OrderDetail;
-import java.util.List;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import lombok.Getter;
 
+@Getter
 public class OrderCreateRequestDto {
-    private Order order;
-    // TODO: 주문 상세 내역을 Redis에서 가져오도록 한 후 dto 수정
-    private List<OrderDetail> orderDetails;
 
-    // Getters and Setters
-    public Order getOrder() {
-        return order;
-    }
+    @NotNull(message = "Address ID cannot be null")
+    @Pattern(
+        regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+        message = "Address ID must be a valid UUID"
+    )
+    private String addressId;
 
-    public void setOrder(Order order) {
-        this.order = order;
-    }
-
-    public List<OrderDetail> getOrderDetails() {
-        return orderDetails;
-    }
-
-    public void setOrderDetails(List<OrderDetail> orderDetails) {
-        this.orderDetails = orderDetails;
-    }
 }
