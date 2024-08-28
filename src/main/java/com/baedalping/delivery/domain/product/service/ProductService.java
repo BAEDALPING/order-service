@@ -59,4 +59,12 @@ public class ProductService {
     return new ProductUpdateResponseDto(updatedPRoduct);
   }
 
+  @Transactional
+  public void deleteProduct(UUID productId) {
+    Product product = productRepository.findById(productId).orElseThrow(
+        () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT)
+    );
+
+    product.delete(null);
+  }
 }

@@ -9,6 +9,7 @@ import com.baedalping.delivery.domain.store.storeCategory.entity.StoreCategory;
 import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
 import com.baedalping.delivery.global.common.exception.ErrorCode;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -39,5 +40,14 @@ public class StoreCategoryService {
     storeCategory.setStoreCategoryName(storeCategoryUpdateRequestDto.getStoreCategoryName());
     StoreCategory updatedStoreCategory = storeCategoryRepository.save(storeCategory);
     return new StoreCategoryUpdateResponseDto(updatedStoreCategory);
+  }
+
+  @Transactional
+  public void deleteStoreCatgegory(UUID storeCategoryId) {
+    StoreCategory storeCategory = storeCategoryRepository.findById(storeCategoryId).orElseThrow(
+        () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE_CATEGORY)
+    );
+
+    storeCategory.delete(null);
   }
 }

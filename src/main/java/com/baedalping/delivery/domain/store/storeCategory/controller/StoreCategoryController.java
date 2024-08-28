@@ -9,6 +9,7 @@ import com.baedalping.delivery.domain.store.storeCategory.service.StoreCategoryS
 import com.baedalping.delivery.global.common.ApiResponse;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -34,5 +35,11 @@ public class StoreCategoryController {
       @RequestBody StoreCategoryUpdateRequestDto storeCategoryUpdateRequestDto
   ){
     return ApiResponse.ok(storeCategoryService.updateStoreCatgegory(storeCategoryId, storeCategoryUpdateRequestDto));
+  }
+
+  @DeleteMapping("{storeCategoryId}")
+  public ApiResponse deleteStoreCatgegory(@PathVariable("storeCategoryId") UUID storeCategoryId){
+    storeCategoryService.deleteStoreCatgegory(storeCategoryId);
+    return ApiResponse.ok(null);
   }
 }

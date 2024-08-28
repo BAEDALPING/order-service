@@ -43,4 +43,12 @@ public class ProductCategoryService {
     return new ProductCategoryUpdateResponseDto(updatedProductCategory);
   }
 
+  @Transactional
+  public void deleteProductCatgegory(UUID productCategoryId) {
+    ProductCategory productCategory = productCategoryRepository.findById(productCategoryId).orElseThrow(
+        () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT_CATEGORY)
+    );
+
+    productCategory.delete(null);
+  }
 }
