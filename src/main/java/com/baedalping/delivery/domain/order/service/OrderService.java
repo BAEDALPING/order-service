@@ -3,19 +3,22 @@ package com.baedalping.delivery.domain.order.service;
 import com.baedalping.delivery.domain.cart.service.CartService;
 import com.baedalping.delivery.domain.order.dto.OrderCreateResponseDto;
 import com.baedalping.delivery.domain.order.dto.OrderDetailResponseDto;
+import com.baedalping.delivery.domain.order.dto.OrderGetResponseDto;
 import com.baedalping.delivery.domain.order.entity.Order;
 import com.baedalping.delivery.domain.order.entity.OrderDetail;
 import com.baedalping.delivery.domain.order.entity.OrderStatus;
+import com.baedalping.delivery.domain.order.repository.OrderRepository;
 import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
 import com.baedalping.delivery.global.common.exception.ErrorCode;
-import com.baedalping.delivery.domain.order.repository.OrderRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,24 +29,46 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderDetailService orderDetailService;
     private final CartService cartService;
+    private final OrderMapperService orderMapperService;
+
 
     // Authentication 적용 전 임시 userId
     private final Long userId = 1L;
 
     @Transactional
     public OrderCreateResponseDto createOrder(UUID addressID) {
-        // validateAddress(addressID); // 주소 검증
+        Map<String, Integer> orderDetailList = fetchCartItems(); // 장바구니 내용물 가져오기
+        Order order = buildOrder(orderDetailList, addressID); // Order 엔티티 생성
+        saveOrder(order); // Order 저장
 
-        Map<String, Integer> orderDetailList = fetchCartItems();
-        Order order = buildOrder(orderDetailList, addressID);
-        saveOrder(order);
+        List<OrderDetail> orderDetails = createAndSaveOrderDetails(order, orderDetailList); // OrderDetail 엔티티 생성 및 저장
+        List<OrderDetailResponseDto> orderDetailResponseDtos = orderMapperService.convertList(orderDetails, OrderDetailResponseDto.class); // 매핑 메서드 사용
 
-        List<OrderDetail> orderDetails = createAndSaveOrderDetails(order, orderDetailList);
-        List<OrderDetailResponseDto> orderDetailResponseDtos = mapToOrderDetailResponseDtos(orderDetails);
+        clearCart(); // 장바구니 비우기
 
-        clearCart();
+        return orderMapperService.convert(order, OrderCreateResponseDto.class)
+            .setOrderDetails(orderDetailResponseDtos); // OrderCreateResponseDto 반환
+    }
 
-        return buildOrderCreateResponse(order, orderDetailResponseDtos);
+    @Transactional(readOnly = true)
+    public List<OrderGetResponseDto> getOrdersByStoreId(UUID storeId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Order> orders = orderRepository.findByStoreIdAndIsPublicTrue(storeId, pageable);
+        return orderMapperService.convertList(orders.getContent(), OrderGetResponseDto.class);
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderGetResponseDto> getOrdersByUserId(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Order> orders = orderRepository.findByUserIdAndIsPublicTrue(userId, pageable);
+        return orderMapperService.convertList(orders.getContent(), OrderGetResponseDto.class);
+    }
+
+    @Transactional(readOnly = true)
+    public OrderGetResponseDto getOrderById(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_ORDER));
+        return orderMapperService.convert(order, OrderGetResponseDto.class);
     }
 
     private void validateAddress(UUID addressID) {
@@ -77,42 +102,17 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    private List<OrderDetail> createAndSaveOrderDetails(Order order, Map<String, Integer> orderDetailList) {
+    private List<OrderDetail> createAndSaveOrderDetails(Order order,
+        Map<String, Integer> orderDetailList) {
         List<OrderDetail> orderDetails = createOrderDetails(order, orderDetailList);
         order.setOrderDetails(orderDetails);
         orderDetailService.saveOrderDetails(orderDetails);
         return orderDetails;
     }
 
-    private List<OrderDetailResponseDto> mapToOrderDetailResponseDtos(List<OrderDetail> orderDetails) {
-        return orderDetails.stream()
-            .map(detail -> new OrderDetailResponseDto(
-                detail.getOrderDetailId(),
-                detail.getProductId(),
-                detail.getProductName(),
-                detail.getQuantity(),
-                detail.getUnitPrice(),
-                detail.getSubtotal()))
-            .collect(Collectors.toList());
-    }
 
     private void clearCart() {
         cartService.clearCart(String.valueOf(userId));
-    }
-
-    private OrderCreateResponseDto buildOrderCreateResponse(Order order, List<OrderDetailResponseDto> orderDetailResponseDtos) {
-        OrderCreateResponseDto response = new OrderCreateResponseDto();
-        response.setOrderId(order.getOrderId());
-        response.setUserId(order.getUserId());
-        response.setStoreId(order.getStoreId());
-        response.setState(order.getState());
-        response.setTotalQuantity(order.getTotalQuantity());
-        response.setTotalPrice(order.getTotalPrice());
-        response.setShippingAddress(order.getShippingAddress());
-        response.setIsPublic(order.getIsPublic());
-        response.setOrderDetails(orderDetailResponseDtos); // OrderDetailResponseDto 설정
-
-        return response;
     }
 
 
