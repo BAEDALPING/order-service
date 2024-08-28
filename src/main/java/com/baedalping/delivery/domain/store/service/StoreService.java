@@ -3,6 +3,8 @@ package com.baedalping.delivery.domain.store.service;
 
 import com.baedalping.delivery.domain.store.dto.StoreCreateRequestDto;
 import com.baedalping.delivery.domain.store.dto.StoreCreateResponseDto;
+import com.baedalping.delivery.domain.store.dto.StoreUpdateRequestDto;
+import com.baedalping.delivery.domain.store.dto.StoreUpdateResponseDto;
 import com.baedalping.delivery.domain.store.entity.Store;
 import com.baedalping.delivery.domain.store.repository.StoreRepository;
 import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
@@ -22,8 +24,7 @@ public class StoreService {
 
   @Transactional
   public StoreCreateResponseDto createStore(StoreCreateRequestDto storeCreateRequestDto) {
-    UUID storeCategoryId = storeCreateRequestDto.getStoreCategoryId();
-    StoreCategory storeCategory = storeCategoryRepository.findById(storeCategoryId).orElseThrow(
+    StoreCategory storeCategory = storeCategoryRepository.findById(storeCreateRequestDto.getStoreCategoryId()).orElseThrow(
         () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE_CATEGORY)
     );
 
@@ -31,7 +32,19 @@ public class StoreService {
     return new StoreCreateResponseDto(store);
   }
 
+  @Transactional
+  public StoreUpdateResponseDto updateStore(UUID storeId, StoreUpdateRequestDto storeUpdateRequestDto) {
+    Store store = storeRepository.findById(storeId).orElseThrow(
+        () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE)
+    );
 
+    StoreCategory storeCategory = storeCategoryRepository.findById(storeUpdateRequestDto.getStoreCategoryId()).orElseThrow(
+        () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE_CATEGORY)
+    );
 
+    store.updateStore(storeUpdateRequestDto, storeCategory);
+    Store updatedStore = storeRepository.save(store);
+    return new StoreUpdateResponseDto(updatedStore);
+  }
 
 }

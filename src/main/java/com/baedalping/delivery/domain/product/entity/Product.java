@@ -2,6 +2,7 @@ package com.baedalping.delivery.domain.product.entity;
 
 
 import com.baedalping.delivery.domain.product.dto.ProductCreateRequestDto;
+import com.baedalping.delivery.domain.product.dto.ProductUpdateRequestDto;
 import com.baedalping.delivery.global.common.AuditField;
 import com.baedalping.delivery.domain.productCategory.entity.ProductCategory;
 import com.baedalping.delivery.domain.store.entity.Store;
@@ -60,6 +61,15 @@ public class Product extends AuditField {
         this.productPrice = productCreateRequestDto.getProductPrice();
         this.productDetail = productCreateRequestDto.getProductDetail();
         this.productImgUrl = productCreateRequestDto.getProductImgUrl();
+    }
+
+    public void updateProduct(ProductUpdateRequestDto productUpdateRequestDto, ProductCategory productCategory, Store store){
+        this.productName = productUpdateRequestDto.getProductName();
+        this.productCategory = productCategory;
+        this.store = store;
+        this.productPrice = productUpdateRequestDto.getProductPrice();
+        this.productDetail = productUpdateRequestDto.getProductDetail();
+        this.productImgUrl = productUpdateRequestDto.getProductImgUrl();
     }
 
 }

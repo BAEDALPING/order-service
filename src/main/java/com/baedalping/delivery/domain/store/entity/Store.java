@@ -1,6 +1,7 @@
 package com.baedalping.delivery.domain.store.entity;
 
 import com.baedalping.delivery.domain.store.dto.StoreCreateRequestDto;
+import com.baedalping.delivery.domain.store.dto.StoreUpdateRequestDto;
 import com.baedalping.delivery.global.common.AuditField;
 import com.baedalping.delivery.domain.product.entity.Product;
 import com.baedalping.delivery.domain.storeCategory.entity.StoreCategory;
@@ -75,4 +76,13 @@ public class Store extends AuditField {
     this.storeCategory = storeCategory;
   }
 
+  public void updateStore(StoreUpdateRequestDto storeUpdateRequestDto, StoreCategory storeCategory){
+    this.storeName = storeUpdateRequestDto.getStoreName();
+    this.storePhone = storeUpdateRequestDto.getStorePhone();
+    this.storeAddress = storeUpdateRequestDto.getStoreAddress();
+    this.storeDetail = storeUpdateRequestDto.getStoreDetail();
+    this.openTime = storeUpdateRequestDto.getOpenTime();
+    this.closeTime = storeUpdateRequestDto.getCloseTime();
+    this.storeCategory = storeCategory;
+  }
 }

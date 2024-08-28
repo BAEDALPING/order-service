@@ -1,10 +1,13 @@
 package com.baedalping.delivery.domain.product.service;
 
 
+import com.baedalping.delivery.domain.product.dto.ProductUpdateRequestDto;
+import com.baedalping.delivery.domain.product.dto.ProductUpdateResponseDto;
 import com.baedalping.delivery.domain.product.entity.Product;
 import com.baedalping.delivery.domain.product.dto.ProductCreateRequestDto;
 import com.baedalping.delivery.domain.product.dto.ProductCreateResponseDto;
 import com.baedalping.delivery.domain.product.repository.ProductRepository;
+import com.baedalping.delivery.domain.storeCategory.repository.StoreCategoryRepository;
 import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
 import com.baedalping.delivery.global.common.exception.ErrorCode;
 import com.baedalping.delivery.domain.productCategory.entity.ProductCategory;
@@ -26,18 +29,34 @@ public class ProductService {
 
   @Transactional
   public ProductCreateResponseDto createProduct(ProductCreateRequestDto productCreateRequestDto) {
-    UUID productCategoryId = productCreateRequestDto.getProductCategoryId();
-    ProductCategory productCategory = productCategoryRepository.findById(productCategoryId).orElseThrow(
+    ProductCategory productCategory = productCategoryRepository.findById(productCreateRequestDto.getProductCategoryId()).orElseThrow(
         () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT_CATEGORY)
     );
 
-    UUID storeId = productCreateRequestDto.getStoreId();
-    Store store = storeRepository.findById(storeId).orElseThrow(
+    Store store = storeRepository.findById(productCreateRequestDto.getStoreId()).orElseThrow(
         () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE)
     );
 
     Product product = productRepository.save(new Product(productCreateRequestDto, productCategory, store));
     return new ProductCreateResponseDto(product);
+  }
+
+  public ProductUpdateResponseDto updateProduct(UUID productId, ProductUpdateRequestDto productUpdateRequestDto) {
+    Product product = productRepository.findById(productId).orElseThrow(
+        () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT)
+    );
+
+    ProductCategory productCategory = productCategoryRepository.findById(productUpdateRequestDto.getProductCategoryId()).orElseThrow(
+        () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT_CATEGORY)
+    );
+
+    Store store = storeRepository.findById(productUpdateRequestDto.getStoreId()).orElseThrow(
+        () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE)
+    );
+
+    product.updateProduct(productUpdateRequestDto, productCategory, store);
+    Product updatedPRoduct = productRepository.save(product);
+    return new ProductUpdateResponseDto(updatedPRoduct);
   }
 
 }

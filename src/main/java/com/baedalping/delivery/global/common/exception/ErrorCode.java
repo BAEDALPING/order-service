@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum ErrorCode {
   NOT_FOUND_USER(HttpStatus.NOT_FOUND, "가입된 유저가 아닙니다"),
-  NOT_FOUND_USER(HttpStatus.NOT_FOUND, "가입된 유저가 아닙니다"),
   DUPLICATED_USER(HttpStatus.CONFLICT, "이미 가입된 유저 이메일 입니다"),
   
   NOT_FOUND_STORE_CATEGORY(HttpStatus.NOT_FOUND, "가게 분류를 찾을 수 없습니다."),
@@ -16,6 +15,8 @@ public enum ErrorCode {
 
   NOT_FOUND_STORE(HttpStatus.NOT_FOUND, "가게를 찾을 수 없습니다."),
 
+  NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
+  
   DUPLICATE_PRODUCT_CATEGORY_NAME(HttpStatus.NOT_FOUND, "상품 분류가 중복되었습니다."),
   NOT_FOUND_PRODUCT_CATEGORY(HttpStatus.NOT_FOUND, "상품 분류를 찾을 수 없습니다."),
 
