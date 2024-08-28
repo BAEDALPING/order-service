@@ -1,10 +1,9 @@
-package com.baedalping.delivery.cart.service;
+package com.baedalping.delivery.domain.cart.service;
 
-import com.baedalping.delivery.cart.dto.CartRequestDto;
+import com.baedalping.delivery.domain.cart.dto.CartRequestDto;
 import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
 import com.baedalping.delivery.global.common.exception.ErrorCode;
 import java.util.Map;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -89,6 +88,13 @@ public class CartService {
     // 헬퍼 메서드: Product Key 생성
     private String getProductKey(String storeId, String productId) {
         return storeId + ":" + productId;
+    }
+
+    public Map<String, Integer> getCartProducts(Long userId) {
+        HashOperations<String, String, Integer> hashOps = redisTemplate.opsForHash();
+        String cartKey = CART_PREFIX + userId;
+
+        return hashOps.entries(cartKey);
     }
 }
 

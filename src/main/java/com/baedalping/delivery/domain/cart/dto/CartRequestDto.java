@@ -1,4 +1,4 @@
-package com.baedalping.delivery.cart.dto;
+package com.baedalping.delivery.domain.cart.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.baedalping.delivery.cart.dto;
+package com.baedalping.delivery.domain.cart.dto;
 
 import java.util.Map;
 import lombok.AllArgsConstructor;
