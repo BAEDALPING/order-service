@@ -7,11 +7,10 @@ import com.baedalping.delivery.domain.product.entity.Product;
 import com.baedalping.delivery.domain.product.dto.ProductCreateRequestDto;
 import com.baedalping.delivery.domain.product.dto.ProductCreateResponseDto;
 import com.baedalping.delivery.domain.product.repository.ProductRepository;
-import com.baedalping.delivery.domain.storeCategory.repository.StoreCategoryRepository;
 import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
 import com.baedalping.delivery.global.common.exception.ErrorCode;
-import com.baedalping.delivery.domain.productCategory.entity.ProductCategory;
-import com.baedalping.delivery.domain.productCategory.repository.ProductCategoryRepository;
+import com.baedalping.delivery.domain.product.productCategory.entity.ProductCategory;
+import com.baedalping.delivery.domain.product.productCategory.repository.ProductCategoryRepository;
 import com.baedalping.delivery.domain.store.entity.Store;
 import com.baedalping.delivery.domain.store.repository.StoreRepository;
 import jakarta.transaction.Transactional;
@@ -41,6 +40,7 @@ public class ProductService {
     return new ProductCreateResponseDto(product);
   }
 
+  @Transactional
   public ProductUpdateResponseDto updateProduct(UUID productId, ProductUpdateRequestDto productUpdateRequestDto) {
     Product product = productRepository.findById(productId).orElseThrow(
         () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT)

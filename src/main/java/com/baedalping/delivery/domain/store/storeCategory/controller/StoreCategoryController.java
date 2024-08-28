@@ -1,11 +1,11 @@
-package com.baedalping.delivery.domain.storeCategory.controller;
+package com.baedalping.delivery.domain.store.storeCategory.controller;
 
 
-import com.baedalping.delivery.domain.storeCategory.dto.StoreCategoryCreateRequestDto;
-import com.baedalping.delivery.domain.storeCategory.dto.StoreCategoryCreateResponseDto;
-import com.baedalping.delivery.domain.storeCategory.dto.StoreCategoryUpdateRequestDto;
-import com.baedalping.delivery.domain.storeCategory.dto.StoreCategoryUpdateResponseDto;
-import com.baedalping.delivery.domain.storeCategory.service.StoreCategoryService;
+import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryCreateRequestDto;
+import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryCreateResponseDto;
+import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryUpdateRequestDto;
+import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryUpdateResponseDto;
+import com.baedalping.delivery.domain.store.storeCategory.service.StoreCategoryService;
 import com.baedalping.delivery.global.common.ApiResponse;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +35,4 @@ public class StoreCategoryController {
   ){
     return ApiResponse.ok(storeCategoryService.updateStoreCatgegory(storeCategoryId, storeCategoryUpdateRequestDto));
   }
-
-
 }

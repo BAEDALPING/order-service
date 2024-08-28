@@ -1,6 +1,6 @@
-package com.baedalping.delivery.domain.productCategory.entity;
+package com.baedalping.delivery.domain.product.productCategory.entity;
 
-import com.baedalping.delivery.domain.productCategory.dto.ProductCategoryCreateRequestDto;
+import com.baedalping.delivery.domain.product.productCategory.dto.ProductCategoryCreateRequestDto;
 import com.baedalping.delivery.global.common.AuditField;
 import com.baedalping.delivery.domain.product.entity.Product;
 import jakarta.persistence.*;

@@ -1,11 +1,11 @@
-package com.baedalping.delivery.domain.storeCategory.service;
+package com.baedalping.delivery.domain.store.storeCategory.service;
 
-import com.baedalping.delivery.domain.storeCategory.dto.StoreCategoryCreateRequestDto;
-import com.baedalping.delivery.domain.storeCategory.dto.StoreCategoryCreateResponseDto;
-import com.baedalping.delivery.domain.storeCategory.dto.StoreCategoryUpdateRequestDto;
-import com.baedalping.delivery.domain.storeCategory.dto.StoreCategoryUpdateResponseDto;
-import com.baedalping.delivery.domain.storeCategory.repository.StoreCategoryRepository;
-import com.baedalping.delivery.domain.storeCategory.entity.StoreCategory;
+import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryCreateRequestDto;
+import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryCreateResponseDto;
+import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryUpdateRequestDto;
+import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryUpdateResponseDto;
+import com.baedalping.delivery.domain.store.storeCategory.repository.StoreCategoryRepository;
+import com.baedalping.delivery.domain.store.storeCategory.entity.StoreCategory;
 import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
 import com.baedalping.delivery.global.common.exception.ErrorCode;
 import jakarta.transaction.Transactional;

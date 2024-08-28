@@ -4,7 +4,7 @@ import com.baedalping.delivery.domain.store.dto.StoreCreateRequestDto;
 import com.baedalping.delivery.domain.store.dto.StoreUpdateRequestDto;
 import com.baedalping.delivery.global.common.AuditField;
 import com.baedalping.delivery.domain.product.entity.Product;
-import com.baedalping.delivery.domain.storeCategory.entity.StoreCategory;
+import com.baedalping.delivery.domain.store.storeCategory.entity.StoreCategory;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

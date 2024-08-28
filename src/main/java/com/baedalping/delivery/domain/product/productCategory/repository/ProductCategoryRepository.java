@@ -1,6 +1,6 @@
-package com.baedalping.delivery.domain.productCategory.repository;
+package com.baedalping.delivery.domain.product.productCategory.repository;
 
-import com.baedalping.delivery.domain.productCategory.entity.ProductCategory;
+import com.baedalping.delivery.domain.product.productCategory.entity.ProductCategory;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 

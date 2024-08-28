@@ -1,10 +1,10 @@
-package com.baedalping.delivery.domain.productCategory.controller;
+package com.baedalping.delivery.domain.product.productCategory.controller;
 
-import com.baedalping.delivery.domain.productCategory.dto.ProductCategoryCreateRequestDto;
-import com.baedalping.delivery.domain.productCategory.dto.ProductCategoryCreateResponseDto;
-import com.baedalping.delivery.domain.productCategory.dto.ProductCategoryUpdateRequestDto;
-import com.baedalping.delivery.domain.productCategory.dto.ProductCategoryUpdateResponseDto;
-import com.baedalping.delivery.domain.productCategory.service.ProductCategoryService;
+import com.baedalping.delivery.domain.product.productCategory.dto.ProductCategoryCreateRequestDto;
+import com.baedalping.delivery.domain.product.productCategory.dto.ProductCategoryCreateResponseDto;
+import com.baedalping.delivery.domain.product.productCategory.dto.ProductCategoryUpdateRequestDto;
+import com.baedalping.delivery.domain.product.productCategory.dto.ProductCategoryUpdateResponseDto;
+import com.baedalping.delivery.domain.product.productCategory.service.ProductCategoryService;
 import com.baedalping.delivery.global.common.ApiResponse;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

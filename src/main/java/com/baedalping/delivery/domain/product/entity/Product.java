@@ -4,7 +4,7 @@ package com.baedalping.delivery.domain.product.entity;
 import com.baedalping.delivery.domain.product.dto.ProductCreateRequestDto;
 import com.baedalping.delivery.domain.product.dto.ProductUpdateRequestDto;
 import com.baedalping.delivery.global.common.AuditField;
-import com.baedalping.delivery.domain.productCategory.entity.ProductCategory;
+import com.baedalping.delivery.domain.product.productCategory.entity.ProductCategory;
 import com.baedalping.delivery.domain.store.entity.Store;
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.baedalping.delivery.domain.storeCategory.dto;
+package com.baedalping.delivery.domain.store.storeCategory.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

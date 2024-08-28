@@ -1,17 +1,17 @@
-package com.baedalping.delivery.domain.productCategory.dto;
+package com.baedalping.delivery.domain.product.productCategory.dto;
 
-import com.baedalping.delivery.domain.productCategory.entity.ProductCategory;
+import com.baedalping.delivery.domain.product.productCategory.entity.ProductCategory;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ProductCategoryUpdateResponseDto {
+public class ProductCategoryCreateResponseDto {
   private UUID productCategoryId;
   private String productCategoryName;
 
-  public ProductCategoryUpdateResponseDto(ProductCategory productCategory){
+  public ProductCategoryCreateResponseDto(ProductCategory productCategory){
     this.productCategoryId = productCategory.getProductCategoryId();
     this.productCategoryName = productCategory.getProductCategoryName();
   }
