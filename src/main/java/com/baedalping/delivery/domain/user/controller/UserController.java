@@ -2,10 +2,10 @@ package com.baedalping.delivery.domain.user.controller;
 
 import com.baedalping.delivery.domain.user.dto.request.UserAddressCreateRequestDto;
 import com.baedalping.delivery.domain.user.dto.request.UserCreateRequestDto;
+import com.baedalping.delivery.domain.user.dto.request.UserUpdateRequestDto;
 import com.baedalping.delivery.domain.user.dto.response.UserAddressResponseDto;
 import com.baedalping.delivery.domain.user.dto.response.UserCreateResponseDto;
 import com.baedalping.delivery.domain.user.dto.response.UserReadResponseDto;
-import com.baedalping.delivery.domain.user.dto.request.UserUpdateRequestDto;
 import com.baedalping.delivery.domain.user.dto.response.UserUpdateResponseDto;
 import com.baedalping.delivery.domain.user.service.UserService;
 import com.baedalping.delivery.global.common.ApiResponse;

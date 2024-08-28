@@ -51,11 +51,12 @@ public class UserAddress extends AuditField {
     this.zipcode = zipcode;
     this.alias = alias;
   }
-  public void setUser(User user){
+
+  public void setUser(User user) {
     this.user = user;
   }
 
-  public void setInvisible(){
+  public void setInvisible() {
     this.isPublic = false;
   }
 }

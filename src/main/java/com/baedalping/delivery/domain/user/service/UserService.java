@@ -59,22 +59,19 @@ public class UserService {
   }
 
   @Transactional
-  public UserAddressResponseDto addAddress(Long userId, String address, String zipcode, String alias){
+  public UserAddressResponseDto addAddress(
+      Long userId, String address, String zipcode, String alias) {
     User user = findByUser(userId);
-    UserAddress newAddress = UserAddress.builder()
-        .address(address)
-        .zipcode(zipcode)
-        .alias(alias)
-        .build();
+    UserAddress newAddress =
+        UserAddress.builder().address(address).zipcode(zipcode).alias(alias).build();
     user.addAddress(newAddress);
     addressRepository.save(newAddress);
     return UserAddressResponseDto.fromEntity(newAddress);
   }
 
-  public List<UserAddressResponseDto> getAddressList(Long userId){
+  public List<UserAddressResponseDto> getAddressList(Long userId) {
     User user = findByUser(userId);
-    return user.getAddressList()
-        .stream()
+    return user.getAddressList().stream()
         .map(address -> UserAddressResponseDto.fromEntity(address))
         .collect(Collectors.toList());
   }
