@@ -10,6 +10,7 @@ import com.baedalping.delivery.global.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -30,6 +31,12 @@ public class UserController {
         userService.create(requestDto.username(), requestDto.password(), requestDto.email()));
   }
 
+  @GetMapping("/{userId}")
+  public ApiResponse<UserReadResponseDto> read(@PathVariable("userId") Long userId) {
+    // TODO :: spring security 적용 이후 principle에 있는 userId를 가져올 예정
+    return ApiResponse.ok(userService.get(userId));
+  }
+
   @PutMapping
   public ApiResponse<UserUpdateResponseDto> update(
       @RequestBody @Validated UserUpdateRequestDto requestDto) {
@@ -40,7 +47,7 @@ public class UserController {
   }
 
   @DeleteMapping("/{userId}")
-  public ApiResponse<UserReadResponseDto> delete(@PathVariable("userId") Long userId){
+  public ApiResponse<UserReadResponseDto> delete(@PathVariable("userId") Long userId) {
     // TODO :: spring security 적용 이후 principle에 있는 userId를 가져올 예정
     return ApiResponse.ok(userService.delete(userId));
   }

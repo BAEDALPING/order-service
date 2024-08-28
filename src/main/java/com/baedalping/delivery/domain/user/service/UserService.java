@@ -29,6 +29,10 @@ public class UserService {
     return UserCreateResponseDto.ofEntity(userRepository.save(newUser));
   }
 
+  public UserReadResponseDto get(Long userId) {
+    return UserReadResponseDto.ofEntity(findByUser(userId));
+  }
+
   @Transactional
   public UserUpdateResponseDto updateUserInfo(
       Long userId, String username, String password, String email) {
@@ -40,7 +44,7 @@ public class UserService {
   }
 
   @Transactional
-  public UserReadResponseDto delete(Long userId){
+  public UserReadResponseDto delete(Long userId) {
     User user = findByUser(userId);
     user.setInvisible();
     userRepository.delete(user);
@@ -48,7 +52,7 @@ public class UserService {
     return UserReadResponseDto.ofEntity(user);
   }
 
-  private User findByUser(Long userId){
+  private User findByUser(Long userId) {
     return userRepository
         .findByUserId(userId)
         .orElseThrow(() -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_USER));
