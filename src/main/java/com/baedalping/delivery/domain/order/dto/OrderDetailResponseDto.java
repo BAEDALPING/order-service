@@ -1,4 +1,4 @@
-package com.baedalping.delivery.order.dto;
+package com.baedalping.delivery.domain.order.dto;
 
 
 

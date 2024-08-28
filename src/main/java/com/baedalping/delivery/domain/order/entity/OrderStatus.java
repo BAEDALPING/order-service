@@ -1,4 +1,4 @@
-package com.baedalping.delivery.order.entity;
+package com.baedalping.delivery.domain.order.entity;
 
 public enum OrderStatus {
     PENDING,

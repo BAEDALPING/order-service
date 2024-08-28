@@ -1,4 +1,4 @@
-package com.baedalping.delivery.order.entity;
+package com.baedalping.delivery.domain.order.entity;
 
 import com.baedalping.delivery.global.common.AuditField;
 import jakarta.persistence.CascadeType;

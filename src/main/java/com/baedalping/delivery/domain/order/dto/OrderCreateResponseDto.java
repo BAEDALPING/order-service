@@ -1,8 +1,8 @@
-package com.baedalping.delivery.order.dto;
+package com.baedalping.delivery.domain.order.dto;
 
 
 
-import com.baedalping.delivery.order.entity.OrderStatus;
+import com.baedalping.delivery.domain.order.entity.OrderStatus;
 import lombok.Getter;
 import lombok.Setter;
 

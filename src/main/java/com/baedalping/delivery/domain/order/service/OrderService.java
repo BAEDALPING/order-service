@@ -1,14 +1,14 @@
-package com.baedalping.delivery.order.service;
+package com.baedalping.delivery.domain.order.service;
 
-import com.baedalping.delivery.cart.service.CartService;
+import com.baedalping.delivery.domain.cart.service.CartService;
+import com.baedalping.delivery.domain.order.dto.OrderCreateResponseDto;
+import com.baedalping.delivery.domain.order.dto.OrderDetailResponseDto;
+import com.baedalping.delivery.domain.order.entity.Order;
+import com.baedalping.delivery.domain.order.entity.OrderDetail;
+import com.baedalping.delivery.domain.order.entity.OrderStatus;
 import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
 import com.baedalping.delivery.global.common.exception.ErrorCode;
-import com.baedalping.delivery.order.dto.OrderCreateResponseDto;
-import com.baedalping.delivery.order.dto.OrderDetailResponseDto;
-import com.baedalping.delivery.order.entity.Order;
-import com.baedalping.delivery.order.entity.OrderDetail;
-import com.baedalping.delivery.order.entity.OrderStatus;
-import com.baedalping.delivery.order.repository.OrderRepository;
+import com.baedalping.delivery.domain.order.repository.OrderRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
