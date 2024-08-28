@@ -7,8 +7,6 @@ import com.baedalping.delivery.store.Store;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @Getter
@@ -24,7 +22,7 @@ public class Product extends AuditField {
     @Column(nullable = false)
     private String productName;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_category_id", nullable = false)
     private ProductCategory productCategory;
 
@@ -47,6 +45,20 @@ public class Product extends AuditField {
     public void addStore(Store store){
         this.store = store;
         store.getProductList().add(this);
+    }
+
+    public void addProductCategory(ProductCategory productCategory){
+        this.productCategory = productCategory;
+        productCategory.getProductList().add(this);
+    }
+
+    public Product(ProductCreateRequestDto productCreateRequestDto, ProductCategory productCategory, Store store){
+        this.productName = productCreateRequestDto.getProductName();
+        this.productCategory = productCategory;
+        this.store = store;
+        this.productPrice = productCreateRequestDto.getProductPrice();
+        this.productDetail = productCreateRequestDto.getProductDetail();
+        this.productImgUrl = productCreateRequestDto.getProductImgUrl();
     }
 
 }
