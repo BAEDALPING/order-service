@@ -27,9 +27,12 @@ public class UserService {
   }
 
   @Transactional
-  public UserUpdateResponseDto updateUserInfo(Long userId, String username, String password, String email){
-    User user = userRepository.findByUserId(userId)
-        .orElseThrow(() -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_USER));
+  public UserUpdateResponseDto updateUserInfo(
+      Long userId, String username, String password, String email) {
+    User user =
+        userRepository
+            .findByUserId(userId)
+            .orElseThrow(() -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_USER));
 
     user.updateInfo(username, encoder.encode(password), email);
     userRepository.saveAndFlush(user);
