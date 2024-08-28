@@ -18,12 +18,14 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "P_USERS")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLRestriction("deleted_at is NULL")
+@SQLDelete(sql = "UPDATE p_users SET deleted_at = NOW() where user_id = ?")
 @Getter
 public class User extends AuditField {
   @Id
