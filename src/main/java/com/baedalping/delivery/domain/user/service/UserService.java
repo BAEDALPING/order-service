@@ -10,6 +10,8 @@ import com.baedalping.delivery.domain.user.repository.UserAddressRepository;
 import com.baedalping.delivery.domain.user.repository.UserRepository;
 import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
 import com.baedalping.delivery.global.common.exception.ErrorCode;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -59,7 +61,6 @@ public class UserService {
   @Transactional
   public UserAddressResponseDto addAddress(Long userId, String address, String zipcode, String alias){
     User user = findByUser(userId);
-    log.info("{}", user.getUserId());
     UserAddress newAddress = UserAddress.builder()
         .address(address)
         .zipcode(zipcode)
@@ -67,7 +68,15 @@ public class UserService {
         .build();
     user.addAddress(newAddress);
     addressRepository.save(newAddress);
-    return UserAddressResponseDto.fromEntity(user.getUserId(), newAddress);
+    return UserAddressResponseDto.fromEntity(newAddress);
+  }
+
+  public List<UserAddressResponseDto> getAddressList(Long userId){
+    User user = findByUser(userId);
+    return user.getAddressList()
+        .stream()
+        .map(address -> UserAddressResponseDto.fromEntity(address))
+        .collect(Collectors.toList());
   }
 
   private User findByUser(Long userId) {
