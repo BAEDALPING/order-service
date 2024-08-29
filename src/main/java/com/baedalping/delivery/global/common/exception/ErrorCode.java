@@ -10,6 +10,7 @@ public enum ErrorCode {
   NOT_FOUND_USER(HttpStatus.NOT_FOUND, "가입된 유저가 아닙니다"),
   DUPLICATED_USER(HttpStatus.CONFLICT, "이미 가입된 유저 이메일 입니다"),
   INVALID_PERMISSION(HttpStatus.UNAUTHORIZED, "요청 권한이 없습니다"),
+  INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다"),
 
   NOT_FOUND_STORE_CATEGORY(HttpStatus.NOT_FOUND, "가게 분류를 찾을 수 없습니다."),
   DUPLICATE_STORE_CATEGORY_NAME(HttpStatus.NOT_FOUND, "가게 분류가 중복되었습니다."),
