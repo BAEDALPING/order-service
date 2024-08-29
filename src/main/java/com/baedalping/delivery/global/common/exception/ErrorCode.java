@@ -16,6 +16,8 @@ public enum ErrorCode {
 
   NOT_FOUND_STORE(HttpStatus.NOT_FOUND, "가게를 찾을 수 없습니다."),
 
+  NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
+  
   DUPLICATE_PRODUCT_CATEGORY_NAME(HttpStatus.NOT_FOUND, "상품 분류가 중복되었습니다."),
   NOT_FOUND_PRODUCT_CATEGORY(HttpStatus.NOT_FOUND, "상품 분류를 찾을 수 없습니다."),
 
