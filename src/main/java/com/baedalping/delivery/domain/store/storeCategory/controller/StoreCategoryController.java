@@ -7,6 +7,7 @@ import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryUpdat
 import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryUpdateResponseDto;
 import com.baedalping.delivery.domain.store.storeCategory.service.StoreCategoryService;
 import com.baedalping.delivery.global.common.ApiResponse;
+import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,14 +26,14 @@ public class StoreCategoryController {
   private final StoreCategoryService storeCategoryService;
 
   @PostMapping
-  public ApiResponse<StoreCategoryCreateResponseDto> createStoreCategory(@RequestBody StoreCategoryCreateRequestDto storeCategoryCreateRequestDto){
+  public ApiResponse<StoreCategoryCreateResponseDto> createStoreCategory(@Valid @RequestBody StoreCategoryCreateRequestDto storeCategoryCreateRequestDto){
     return ApiResponse.created(storeCategoryService.createStoreCategory(storeCategoryCreateRequestDto));
   }
 
   @PutMapping("{storeCategoryId}")
   public ApiResponse<StoreCategoryUpdateResponseDto> updateStoreCatgegory(
       @PathVariable("storeCategoryId") UUID storeCategoryId,
-      @RequestBody StoreCategoryUpdateRequestDto storeCategoryUpdateRequestDto
+      @Valid @RequestBody StoreCategoryUpdateRequestDto storeCategoryUpdateRequestDto
   ){
     return ApiResponse.ok(storeCategoryService.updateStoreCatgegory(storeCategoryId, storeCategoryUpdateRequestDto));
   }

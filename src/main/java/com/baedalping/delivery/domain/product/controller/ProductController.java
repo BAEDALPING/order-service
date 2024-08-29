@@ -6,6 +6,7 @@ import com.baedalping.delivery.domain.product.dto.ProductUpdateRequestDto;
 import com.baedalping.delivery.domain.product.dto.ProductUpdateResponseDto;
 import com.baedalping.delivery.domain.product.service.ProductService;
 import com.baedalping.delivery.global.common.ApiResponse;
+import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,14 +25,14 @@ public class ProductController {
   private final ProductService productService;
 
   @PostMapping
-  public ApiResponse<ProductCreateResponseDto> createProduct(@RequestBody ProductCreateRequestDto productCreateRequestDto){
+  public ApiResponse<ProductCreateResponseDto> createProduct(@Valid @RequestBody ProductCreateRequestDto productCreateRequestDto){
     return ApiResponse.created(productService.createProduct(productCreateRequestDto));
   }
 
   @PutMapping("{productId}")
   public ApiResponse<ProductUpdateResponseDto> updateProduct(
       @PathVariable("productId") UUID productId,
-      @RequestBody ProductUpdateRequestDto productUpdateRequestDto
+      @Valid @RequestBody ProductUpdateRequestDto productUpdateRequestDto
   ){
     return ApiResponse.ok(productService.updateProduct(productId, productUpdateRequestDto));
   }
