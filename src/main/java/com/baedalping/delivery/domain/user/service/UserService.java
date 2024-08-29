@@ -11,6 +11,7 @@ import com.baedalping.delivery.domain.user.repository.UserRepository;
 import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
 import com.baedalping.delivery.global.common.exception.ErrorCode;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,6 +75,27 @@ public class UserService {
     return user.getAddressList().stream()
         .map(address -> UserAddressResponseDto.fromEntity(address))
         .collect(Collectors.toList());
+  }
+
+  @Transactional
+  public UserAddressResponseDto updateAddress(
+      UUID addressId, Long userId, String address, String zipcode, String alias) {
+    UserAddress savedAddress = validateUserAddress(addressId, userId);
+    savedAddress.update(address, zipcode, alias);
+    userRepository.flush();
+    return UserAddressResponseDto.fromEntity(savedAddress);
+  }
+
+  private UserAddress validateUserAddress(UUID addressId, Long userId) {
+    UserAddress savedAddress =
+        addressRepository
+            .findByAddressId(addressId)
+            .orElseThrow(() -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_USER));
+
+    if (userId != savedAddress.getUser().getUserId())
+      throw new DeliveryApplicationException(ErrorCode.INVALID_PERMISSION);
+
+    return savedAddress;
   }
 
   private User findByUser(Long userId) {

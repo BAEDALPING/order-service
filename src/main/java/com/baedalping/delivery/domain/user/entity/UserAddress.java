@@ -20,6 +20,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Entity
 @NoArgsConstructor
 @SQLRestriction("deleted_at is NULL")
+@Getter
 public class UserAddress extends AuditField {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -31,15 +32,12 @@ public class UserAddress extends AuditField {
   private User user;
 
   @Column(name = "address", nullable = false)
-  @Getter
   private String address;
 
   @Column(name = "zipcode", nullable = false, length = 5)
-  @Getter
   private String zipcode;
 
   @Column(name = "address_alias", nullable = true)
-  @Getter
   private String alias;
 
   @Column(name = "is_public")
@@ -58,5 +56,11 @@ public class UserAddress extends AuditField {
 
   public void setInvisible() {
     this.isPublic = false;
+  }
+
+  public void update(String address, String zipcode, String alias){
+    this.address = address;
+    this.zipcode = zipcode;
+    this.alias = alias;
   }
 }
