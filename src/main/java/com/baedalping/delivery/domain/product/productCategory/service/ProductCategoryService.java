@@ -39,8 +39,7 @@ public class ProductCategoryService {
     );
 
     productCategory.setProductCategoryName(productCategoryUpdateRequestDto.getProductCategoryName());
-    ProductCategory updatedProductCategory = productCategoryRepository.save(productCategory);
-    return new ProductCategoryUpdateResponseDto(updatedProductCategory);
+    return new ProductCategoryUpdateResponseDto(productCategory);
   }
 
   @Transactional

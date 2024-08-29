@@ -47,8 +47,7 @@ public class StoreService {
     );
 
     store.updateStore(storeUpdateRequestDto, storeCategory);
-    Store updatedStore = storeRepository.save(store);
-    return new StoreUpdateResponseDto(updatedStore);
+    return new StoreUpdateResponseDto(store);
   }
 
   @Transactional

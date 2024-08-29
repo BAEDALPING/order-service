@@ -32,18 +32,17 @@ public class StoreCategoryService {
   }
 
   @Transactional
-  public StoreCategoryUpdateResponseDto updateStoreCatgegory(UUID storeCategoryId, StoreCategoryUpdateRequestDto storeCategoryUpdateRequestDto) {
+  public StoreCategoryUpdateResponseDto updateStoreCategory(UUID storeCategoryId, StoreCategoryUpdateRequestDto storeCategoryUpdateRequestDto) {
     StoreCategory storeCategory = storeCategoryRepository.findById(storeCategoryId).orElseThrow(
         () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE_CATEGORY)
     );
 
     storeCategory.setStoreCategoryName(storeCategoryUpdateRequestDto.getStoreCategoryName());
-    StoreCategory updatedStoreCategory = storeCategoryRepository.save(storeCategory);
-    return new StoreCategoryUpdateResponseDto(updatedStoreCategory);
+    return new StoreCategoryUpdateResponseDto(storeCategory);
   }
 
   @Transactional
-  public void deleteStoreCatgegory(UUID storeCategoryId) {
+  public void deleteStoreCategory(UUID storeCategoryId) {
     StoreCategory storeCategory = storeCategoryRepository.findById(storeCategoryId).orElseThrow(
         () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE_CATEGORY)
     );

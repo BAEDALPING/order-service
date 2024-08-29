@@ -1,6 +1,7 @@
 package com.baedalping.delivery.domain.product.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +13,7 @@ import lombok.Setter;
 public class ProductUpdateRequestDto {
   @NotBlank(message = "상품명을 입력해주세요.")
   private String productName;
-  @NotBlank(message = "상품 가격을 입력해주세요.")
+  @NotNull
   private Integer productPrice;
   private String productDetail;
   private String productImgUrl;

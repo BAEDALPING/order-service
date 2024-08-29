@@ -31,16 +31,16 @@ public class StoreCategoryController {
   }
 
   @PutMapping("{storeCategoryId}")
-  public ApiResponse<StoreCategoryUpdateResponseDto> updateStoreCatgegory(
+  public ApiResponse<StoreCategoryUpdateResponseDto> updateStoreCategory(
       @PathVariable("storeCategoryId") UUID storeCategoryId,
       @Valid @RequestBody StoreCategoryUpdateRequestDto storeCategoryUpdateRequestDto
   ){
-    return ApiResponse.ok(storeCategoryService.updateStoreCatgegory(storeCategoryId, storeCategoryUpdateRequestDto));
+    return ApiResponse.ok(storeCategoryService.updateStoreCategory(storeCategoryId, storeCategoryUpdateRequestDto));
   }
 
   @DeleteMapping("{storeCategoryId}")
-  public ApiResponse deleteStoreCatgegory(@PathVariable("storeCategoryId") UUID storeCategoryId){
-    storeCategoryService.deleteStoreCatgegory(storeCategoryId);
+  public ApiResponse deleteStoreCategory(@PathVariable("storeCategoryId") UUID storeCategoryId){
+    storeCategoryService.deleteStoreCategory(storeCategoryId);
     return ApiResponse.ok(null);
   }
 }

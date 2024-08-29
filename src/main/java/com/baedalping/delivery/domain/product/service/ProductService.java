@@ -55,8 +55,7 @@ public class ProductService {
     );
 
     product.updateProduct(productUpdateRequestDto, productCategory, store);
-    Product updatedPRoduct = productRepository.save(product);
-    return new ProductUpdateResponseDto(updatedPRoduct);
+    return new ProductUpdateResponseDto(product);
   }
 
   @Transactional
@@ -67,4 +66,10 @@ public class ProductService {
 
     product.delete(null);
   }
+
+  /*private Product findById(UUID productId) {
+    return productRepository.findById(productId).orElseThrow(
+            () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT)
+        );
+  }*/
 }
