@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,8 +42,10 @@ public class OrderService {
         Order order = buildOrder(orderDetailList, addressID); // Order 엔티티 생성
         saveOrder(order); // Order 저장
 
-        List<OrderDetail> orderDetails = createAndSaveOrderDetails(order, orderDetailList); // OrderDetail 엔티티 생성 및 저장
-        List<OrderDetailResponseDto> orderDetailResponseDtos = orderMapperService.convertList(orderDetails, OrderDetailResponseDto.class); // 매핑 메서드 사용
+        List<OrderDetail> orderDetails = createAndSaveOrderDetails(order,
+            orderDetailList); // OrderDetail 엔티티 생성 및 저장
+        List<OrderDetailResponseDto> orderDetailResponseDtos = orderMapperService.convertList(
+            orderDetails, OrderDetailResponseDto.class); // 매핑 메서드 사용
 
         clearCart(); // 장바구니 비우기
 
@@ -51,17 +54,25 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public List<OrderGetResponseDto> getOrdersByStoreId(UUID storeId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<OrderGetResponseDto> getOrdersByStoreId(
+        UUID storeId, int page, int size, String sortDirection
+    ) {
+        Sort sort = createSort(sortDirection);
+
+        Pageable pageable = PageRequest.of(page, size, sort);
         Page<Order> orders = orderRepository.findByStoreIdAndIsPublicTrue(storeId, pageable);
-        return orderMapperService.convertList(orders.getContent(), OrderGetResponseDto.class);
+        return orderMapperService.convertPage(orders, OrderGetResponseDto.class);
     }
 
     @Transactional(readOnly = true)
-    public List<OrderGetResponseDto> getOrdersByUserId(Long userId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<OrderGetResponseDto> getOrdersByUserId(
+        Long userId, int page, int size, String sortDirection
+    ) {
+        Sort sort = createSort(sortDirection);
+
+        Pageable pageable = PageRequest.of(page, size, sort);
         Page<Order> orders = orderRepository.findByUserIdAndIsPublicTrue(userId, pageable);
-        return orderMapperService.convertList(orders.getContent(), OrderGetResponseDto.class);
+        return orderMapperService.convertPage(orders, OrderGetResponseDto.class);
     }
 
     @Transactional(readOnly = true)
@@ -171,6 +182,15 @@ public class OrderService {
 
         return orderDetails;
     }
+
+    private Sort createSort(String sortDirection) {
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection); // "asc" or "desc"
+        return Sort.by(
+            new Sort.Order(direction, "createdAt"),
+            new Sort.Order(direction, "updatedAt")
+        );
+    }
+
 
 //    public OrderCreateResponseDto getOrderById(UUID orderId) {
 //        Order order = orderRepository.findById(orderId)

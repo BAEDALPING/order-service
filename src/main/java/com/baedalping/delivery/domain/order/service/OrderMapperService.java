@@ -2,6 +2,7 @@ package com.baedalping.delivery.domain.order.service;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +22,10 @@ public class OrderMapperService {
         return sourceList.stream()
             .map(source -> modelMapper.map(source, targetClass))
             .collect(Collectors.toList());
+    }
+
+    public <S, T> Page<T> convertPage(Page<S> sourcePage, Class<T> targetClass) {
+        return sourcePage.map(source -> modelMapper.map(source, targetClass));
     }
 }
 

@@ -3,13 +3,12 @@ package com.baedalping.delivery.domain.order.controller;
 import com.baedalping.delivery.domain.order.dto.OrderCreateRequestDto;
 import com.baedalping.delivery.domain.order.dto.OrderCreateResponseDto;
 import com.baedalping.delivery.domain.order.dto.OrderGetResponseDto;
-import com.baedalping.delivery.domain.order.entity.Order;
 import com.baedalping.delivery.domain.order.service.OrderService;
 import com.baedalping.delivery.global.common.ApiResponse;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,29 +33,37 @@ public class OrderController {
 
     // 가게 주문 조회
     @GetMapping("/store/{storeId}")
-    public List<OrderGetResponseDto> getOrdersByStore(
+    public ApiResponse<Page<OrderGetResponseDto>> getOrdersByStore(
         @PathVariable UUID storeId,
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "asc") String sortDirection
     ) {
-        return orderService.getOrdersByStoreId(storeId, page, size);
+        return ApiResponse.ok(
+            orderService.getOrdersByStoreId(storeId, page, size, sortDirection)
+        );
     }
 
     // 개인 주문 조회
     @GetMapping("/user/{userId}")
-    public List<OrderGetResponseDto> getOrdersByUser(
+    public ApiResponse<Page<OrderGetResponseDto>> getOrdersByUser(
         @PathVariable Long userId,
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
-    ) {
-        return orderService.getOrdersByUserId(userId, page, size);
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "asc") String sortDirection
 
+    ) {
+        return ApiResponse.ok(
+            orderService.getOrdersByUserId(userId, page, size, sortDirection)
+        );
     }
 
     // 주문 단건 상세 조회
     @GetMapping("/{orderId}")
-    public OrderGetResponseDto getOrderById(@PathVariable UUID orderId) {
-       return orderService.getOrderById(orderId);
+    public ApiResponse<OrderGetResponseDto> getOrderById(@PathVariable UUID orderId) {
+        return ApiResponse.ok(
+            orderService.getOrderById(orderId)
+        );
     }
 //
 //    // 주문 키워드 검색
