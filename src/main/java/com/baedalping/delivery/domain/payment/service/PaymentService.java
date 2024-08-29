@@ -67,7 +67,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentResponseDto deletePayment(UUID paymentId) {
+    public PaymentResponseDto cancelPayment(UUID paymentId) {
         // TODO: user 권한 체크
         Payment payment = getPayment(paymentId);
         payment.setState(PaymentState.CANCELLED);

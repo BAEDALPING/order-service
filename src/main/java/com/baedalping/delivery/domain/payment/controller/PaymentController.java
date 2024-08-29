@@ -42,6 +42,6 @@ public class PaymentController {
     @DeleteMapping("/{paymentId}")
     public ApiResponse<PaymentResponseDto> deletePayment(@PathVariable UUID paymentId) {
         // TODO: Admin 권한으로 설정할 예정 - 일반 유저는 Order 취소에서 구현
-        return ApiResponse.ok(paymentService.deletePayment(paymentId));
+        return ApiResponse.ok(paymentService.cancelPayment(paymentId));
     }
 }
