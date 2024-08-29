@@ -14,8 +14,14 @@ import com.baedalping.delivery.global.common.exception.ErrorCode;
 import com.baedalping.delivery.domain.product.productCategory.entity.ProductCategory;
 import com.baedalping.delivery.domain.store.entity.Store;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -49,9 +55,43 @@ public class ProductService {
     findById(productId).delete(null);
   }
 
+  @Transactional
+  public ProductCreateResponseDto getProduct(UUID productId) {
+    return new ProductCreateResponseDto(findById(productId));
+  }
+
+  @Transactional
+  public Page<ProductCreateResponseDto> getProducts(int page, int size, String sortBy, boolean isAsc) {
+    Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
+    Sort sort = Sort.by(direction, sortBy);
+    Pageable pageable = PageRequest.of(page, size, sort);
+
+    Page<Product> productList = productRepository.findAllByOrderByCreatedAtAscUpdatedAtAsc(pageable);
+    return productList.map(ProductCreateResponseDto::new);
+  }
+
+  @Transactional
+  public List<ProductCreateResponseDto> getProductByStoreId(UUID storeId) {
+    Store store = storeService.findById(storeId);
+    List<Product> productList = productRepository.findAllByStore(store);
+
+    return productList.stream()
+        .map(ProductCreateResponseDto::new)
+        .collect(Collectors.toList());
+  }
+
+  @Transactional
+  public List<ProductCreateResponseDto> getProductSearch(String keyword) {
+    List<Product> productList = productRepository.findAllByProductNameContaining(keyword);
+    return productList.stream()
+        .map(ProductCreateResponseDto::new)
+        .collect(Collectors.toList());
+  }
+
+
   public Product findById(UUID productId) {
     return productRepository.findById(productId).orElseThrow(
-            () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT)
-        );
+        () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT)
+    );
   }
 }

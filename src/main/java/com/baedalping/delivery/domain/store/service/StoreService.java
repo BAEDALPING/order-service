@@ -16,7 +16,12 @@ import com.baedalping.delivery.domain.store.storeCategory.entity.StoreCategory;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -53,9 +58,44 @@ public class StoreService {
     store.delete(null);
   }
 
+  @Transactional
+  public StoreCreateResponseDto getStore(UUID storeId) {
+    return new StoreCreateResponseDto(findById(storeId));
+  }
+
+  @Transactional
+  public List<StoreCreateResponseDto> getStoresByStoreCategoryId(UUID storeCategoryId) {
+    StoreCategory storeCategory = storeCategoryService.findById(storeCategoryId);
+    List<Store> storeList = storeRepository.findAllByStoreCategory(storeCategory);
+
+    return storeList.stream()
+        .map(StoreCreateResponseDto::new)
+        .collect(Collectors.toList());
+  }
+
+  @Transactional
+  public Page<StoreCreateResponseDto> getStores(int page, int size, String sortBy, boolean isAsc) {
+    Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
+    Sort sort = Sort.by(direction, sortBy);
+    Pageable pageable = PageRequest.of(page, size, sort);
+
+    Page<Store> storeList = storeRepository.findAllByOrderByCreatedAtAscUpdatedAtAsc(pageable);
+    return storeList.map(StoreCreateResponseDto::new);
+  }
+
+  @Transactional
+  public List<StoreCreateResponseDto> getStoreSearch(String keyword) {
+    List<Store> storeList = storeRepository.findAllByStoreNameContaining(keyword);
+    return storeList.stream()
+        .map(StoreCreateResponseDto::new)
+        .collect(Collectors.toList());
+  }
+
+
   public Store findById(UUID storeId) {
     return storeRepository.findById(storeId).orElseThrow(
         () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE)
     );
   }
+
 }

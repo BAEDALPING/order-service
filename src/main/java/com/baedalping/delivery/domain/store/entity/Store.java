@@ -58,7 +58,7 @@ public class Store extends AuditField {
 
   private LocalTime closeTime;
 
-  private boolean isPublic = true;
+  private boolean isPublic = false;
 
 
   public void addStoreCategory(StoreCategory storeCategory){
