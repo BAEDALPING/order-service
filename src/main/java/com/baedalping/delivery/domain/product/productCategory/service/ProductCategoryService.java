@@ -1,7 +1,6 @@
 package com.baedalping.delivery.domain.product.productCategory.service;
 
 
-
 import com.baedalping.delivery.domain.product.productCategory.dto.ProductCategoryCreateRequestDto;
 import com.baedalping.delivery.domain.product.productCategory.dto.ProductCategoryCreateResponseDto;
 import com.baedalping.delivery.domain.product.productCategory.dto.ProductCategoryUpdateRequestDto;
@@ -34,20 +33,19 @@ public class ProductCategoryService {
 
   @Transactional
   public ProductCategoryUpdateResponseDto updateProductCatgegory(UUID productCategoryId, ProductCategoryUpdateRequestDto productCategoryUpdateRequestDto) {
-    ProductCategory productCategory = productCategoryRepository.findById(productCategoryId).orElseThrow(
-        () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT_CATEGORY)
-    );
-
+    ProductCategory productCategory = findById(productCategoryId);
     productCategory.setProductCategoryName(productCategoryUpdateRequestDto.getProductCategoryName());
     return new ProductCategoryUpdateResponseDto(productCategory);
   }
 
   @Transactional
   public void deleteProductCatgegory(UUID productCategoryId) {
-    ProductCategory productCategory = productCategoryRepository.findById(productCategoryId).orElseThrow(
+    findById(productCategoryId).delete(null);
+  }
+
+  public ProductCategory findById(UUID productCategoryId) {
+    return productCategoryRepository.findById(productCategoryId).orElseThrow(
         () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT_CATEGORY)
     );
-
-    productCategory.delete(null);
   }
 }

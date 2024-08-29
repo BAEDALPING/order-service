@@ -9,10 +9,10 @@ import com.baedalping.delivery.domain.store.dto.StoreUpdateRequestDto;
 import com.baedalping.delivery.domain.store.dto.StoreUpdateResponseDto;
 import com.baedalping.delivery.domain.store.entity.Store;
 import com.baedalping.delivery.domain.store.repository.StoreRepository;
+import com.baedalping.delivery.domain.store.storeCategory.service.StoreCategoryService;
 import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
 import com.baedalping.delivery.global.common.exception.ErrorCode;
 import com.baedalping.delivery.domain.store.storeCategory.entity.StoreCategory;
-import com.baedalping.delivery.domain.store.storeCategory.repository.StoreCategoryRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
@@ -23,38 +23,27 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class StoreService {
   private final StoreRepository storeRepository;
-  private final StoreCategoryRepository storeCategoryRepository;
   private final ProductRepository productRepository;
+  private final StoreCategoryService storeCategoryService;
 
   @Transactional
   public StoreCreateResponseDto createStore(StoreCreateRequestDto storeCreateRequestDto) {
-    StoreCategory storeCategory = storeCategoryRepository.findById(storeCreateRequestDto.getStoreCategoryId()).orElseThrow(
-        () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE_CATEGORY)
-    );
-
+    StoreCategory storeCategory = storeCategoryService.findById(storeCreateRequestDto.getStoreCategoryId());
     Store store =  storeRepository.save(new Store(storeCreateRequestDto, storeCategory));
     return new StoreCreateResponseDto(store);
   }
 
   @Transactional
   public StoreUpdateResponseDto updateStore(UUID storeId, StoreUpdateRequestDto storeUpdateRequestDto) {
-    Store store = storeRepository.findById(storeId).orElseThrow(
-        () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE)
-    );
-
-    StoreCategory storeCategory = storeCategoryRepository.findById(storeUpdateRequestDto.getStoreCategoryId()).orElseThrow(
-        () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE_CATEGORY)
-    );
-
+    Store store = findById(storeId);
+    StoreCategory storeCategory = storeCategoryService.findById(storeUpdateRequestDto.getStoreCategoryId());
     store.updateStore(storeUpdateRequestDto, storeCategory);
     return new StoreUpdateResponseDto(store);
   }
 
   @Transactional
   public void deleteStore(UUID storeId) {
-    Store store = storeRepository.findById(storeId).orElseThrow(
-        () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE)
-    );
+    Store store = findById(storeId);
 
     List<Product> productList = productRepository.findAllByStore(store);
     for(Product product : productList){
@@ -62,5 +51,11 @@ public class StoreService {
     }
 
     store.delete(null);
+  }
+
+  public Store findById(UUID storeId) {
+    return storeRepository.findById(storeId).orElseThrow(
+        () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE)
+    );
   }
 }
