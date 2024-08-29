@@ -1,10 +1,10 @@
-package com.baedalping.delivery.domain.user.dto;
+package com.baedalping.delivery.domain.user.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
-public record UserCreateRequestDto(
+public record UserUpdateRequestDto(
     @NotBlank(message = "유저이름은 필수값 입니다")
         @Pattern(
             regexp = "^[a-z0-9]{4,10}$",

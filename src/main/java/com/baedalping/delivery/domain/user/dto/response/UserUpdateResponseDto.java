@@ -1,4 +1,4 @@
-package com.baedalping.delivery.domain.user.dto;
+package com.baedalping.delivery.domain.user.dto.response;
 
 import com.baedalping.delivery.domain.user.entity.User;
 import java.time.LocalDateTime;
@@ -8,46 +8,42 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class UserCreateResponseDto {
+public class UserUpdateResponseDto {
   private Long userId;
   private String userName;
   private String email;
   private String userRole;
   private boolean isPublic;
-  private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
-  private LocalDateTime deletedAt;
+  private String updatedBy;
 
   @Builder
-  private UserCreateResponseDto(
+  private UserUpdateResponseDto(
       Long userId,
       String userName,
       String email,
       String userRole,
       boolean isPublic,
-      LocalDateTime createdAt,
       LocalDateTime updatedAt,
-      LocalDateTime deletedAt) {
+      String updatedBy) {
     this.userId = userId;
     this.userName = userName;
     this.email = email;
     this.userRole = userRole;
     this.isPublic = isPublic;
-    this.createdAt = createdAt;
     this.updatedAt = updatedAt;
-    this.deletedAt = deletedAt;
+    this.updatedBy = updatedBy;
   }
 
-  public static UserCreateResponseDto ofEntity(User user) {
-    return UserCreateResponseDto.builder()
+  public static UserUpdateResponseDto ofEntity(User user) {
+    return UserUpdateResponseDto.builder()
         .userId(user.getUserId())
         .userName(user.getUsername())
         .email(user.getEmail())
         .userRole(user.getRole().getRoleName())
         .isPublic(user.isPublic())
-        .createdAt(user.getCreatedAt())
         .updatedAt(user.getUpdatedAt())
-        .deletedAt(user.getDeletedAt())
+        .updatedBy(user.getUpdatedBy())
         .build();
   }
 }

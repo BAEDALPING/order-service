@@ -1,4 +1,4 @@
-package com.baedalping.delivery.domain.user.dto;
+package com.baedalping.delivery.domain.user.dto.response;
 
 import com.baedalping.delivery.domain.user.entity.User;
 import java.time.LocalDateTime;
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Getter
-public class UserReadResponseDto{
+public class UserReadResponseDto {
   private Long userId;
   private String userName;
   private String email;

@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import com.baedalping.delivery.domain.user.dto.UserReadResponseDto;
-import com.baedalping.delivery.domain.user.dto.UserUpdateResponseDto;
+import com.baedalping.delivery.domain.user.dto.response.UserReadResponseDto;
+import com.baedalping.delivery.domain.user.dto.response.UserUpdateResponseDto;
 import com.baedalping.delivery.domain.user.entity.User;
 import com.baedalping.delivery.domain.user.repository.UserRepository;
 import com.baedalping.delivery.domain.user.service.UserService;

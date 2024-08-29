@@ -12,6 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.util.UUID;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
 
@@ -19,6 +20,7 @@ import org.hibernate.annotations.SQLRestriction;
 @Entity
 @NoArgsConstructor
 @SQLRestriction("deleted_at is NULL")
+@Getter
 public class UserAddress extends AuditField {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -38,9 +40,11 @@ public class UserAddress extends AuditField {
   @Column(name = "address_alias", nullable = true)
   private String alias;
 
+  @Column(name = "is_public")
+  private boolean isPublic = true;
+
   @Builder
-  private UserAddress(User user, String address, String zipcode, String alias) {
-    this.user = user;
+  private UserAddress(String address, String zipcode, String alias) {
     this.address = address;
     this.zipcode = zipcode;
     this.alias = alias;
@@ -48,5 +52,15 @@ public class UserAddress extends AuditField {
 
   public void setUser(User user) {
     this.user = user;
+  }
+
+  public void setInvisible() {
+    this.isPublic = false;
+  }
+
+  public void update(String address, String zipcode, String alias) {
+    this.address = address;
+    this.zipcode = zipcode;
+    this.alias = alias;
   }
 }
