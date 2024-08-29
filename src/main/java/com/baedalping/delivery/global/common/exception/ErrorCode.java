@@ -26,8 +26,11 @@ public enum ErrorCode {
   NOT_FOUND_PRODUCT_IN_CART(HttpStatus.NOT_FOUND, "장바구니에 해당 상품이 존재하지 않습니다."),
 
   // Order
-  NOT_FOUND_ORDER(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다.")
-  ;
+  NOT_FOUND_ORDER(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."),
+
+  // Payment
+  NOT_FOUND_PAYMENT(HttpStatus.NOT_FOUND, "존재하지 않는 결제내역입니다."),
+  INVALID_PAYMENT_METHOD(HttpStatus.BAD_REQUEST,"유효하지 않은 결제 방식입니다.");
 
   private final HttpStatus status;
   private final String message;
