@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,7 +29,11 @@ public class OrderController {
     public ApiResponse<OrderCreateResponseDto> createOrder(
         @RequestBody @Valid OrderCreateRequestDto orderRequest) {
         return ApiResponse.created(
-            orderService.createOrder(UUID.fromString(orderRequest.getAddressId())));
+            orderService.createOrder(
+                UUID.fromString(orderRequest.getAddressId()),
+                orderRequest.getOrderType()
+            )
+        );
     }
 
     // 가게 주문 조회
@@ -73,9 +78,10 @@ public class OrderController {
 //    }
 //
 //
-//    // 주문 취소
-//    @PostMapping("/{orderId}/cancel")
-//    public Order cancelOrder(@PathVariable UUID orderId) {
-//        return orderService.cancelOrder(orderId);
-//    }
+    // 주문 취소
+
+    @DeleteMapping("/{orderId}/cancel")
+    public ApiResponse<OrderGetResponseDto> cancelOrder(@PathVariable UUID orderId) {
+        return ApiResponse.ok(orderService.cancelOrder(orderId));
+    }
 }
