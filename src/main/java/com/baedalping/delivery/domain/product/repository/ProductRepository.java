@@ -2,7 +2,7 @@ package com.baedalping.delivery.domain.product.repository;
 
 import com.baedalping.delivery.domain.product.entity.Product;
 import com.baedalping.delivery.domain.product.productCategory.entity.ProductCategory;
-import com.baedalping.delivery.domain.store.dto.StoreCreateResponseDto;
+import com.baedalping.delivery.domain.store.dto.StoreResponseDto;
 import com.baedalping.delivery.domain.store.entity.Store;
 import java.util.List;
 import org.springframework.data.domain.Page;

@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
-public class StoreUpdateRequestDto {
+public class StoreRequestDto {
   @NotBlank(message = "상호명을 입력해주세요.")
   private String storeName;
   private String storePhone;

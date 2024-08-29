@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ProductCreateResponseDto {
+public class ProductResponseDto {
   private UUID productId;
   private String productName;
   private Integer productPrice;
@@ -16,7 +16,7 @@ public class ProductCreateResponseDto {
   private UUID storeId;
   private UUID categoryId;
 
-  public ProductCreateResponseDto(Product product){
+  public ProductResponseDto(Product product){
     this.productId = product.getProductId();
     this.productName = product.getProductName();
     this.productPrice = product.getProductPrice();

@@ -1,12 +1,10 @@
 package com.baedalping.delivery.domain.store.storeCategory.service;
 
 
-import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryCreateRequestDto;
-import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryCreateResponseDto;
-import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryUpdateRequestDto;
-import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryUpdateResponseDto;
-import com.baedalping.delivery.domain.store.storeCategory.repository.StoreCategoryRepository;
+import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryRequestDto;
+import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryResponseDto;
 import com.baedalping.delivery.domain.store.storeCategory.entity.StoreCategory;
+import com.baedalping.delivery.domain.store.storeCategory.repository.StoreCategoryRepository;
 import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
 import com.baedalping.delivery.global.common.exception.ErrorCode;
 import jakarta.transaction.Transactional;
@@ -25,21 +23,21 @@ public class StoreCategoryService {
   private final StoreCategoryRepository storeCategoryRepository;
 
   @Transactional
-  public StoreCategoryCreateResponseDto createStoreCategory(StoreCategoryCreateRequestDto storeCategoryCreateRequestDto) {
-    String storeCategoryName = storeCategoryCreateRequestDto.getStoreCategoryName();
+  public StoreCategoryResponseDto createStoreCategory(StoreCategoryRequestDto storeCategoryRequestDto) {
+    String storeCategoryName = storeCategoryRequestDto.getStoreCategoryName();
     if(storeCategoryRepository.findByStoreCategoryName(storeCategoryName).isPresent()) {
       new DeliveryApplicationException(ErrorCode.DUPLICATE_STORE_CATEGORY_NAME);
     }
 
-    StoreCategory storeCategory = storeCategoryRepository.save(new StoreCategory(storeCategoryCreateRequestDto));
-    return new StoreCategoryCreateResponseDto(storeCategory);
+    StoreCategory storeCategory = storeCategoryRepository.save(new StoreCategory(storeCategoryRequestDto));
+    return new StoreCategoryResponseDto(storeCategory);
   }
 
   @Transactional
-  public StoreCategoryUpdateResponseDto updateStoreCategory(UUID storeCategoryId, StoreCategoryUpdateRequestDto storeCategoryUpdateRequestDto) {
+  public StoreCategoryResponseDto updateStoreCategory(UUID storeCategoryId, StoreCategoryRequestDto storeCategoryRequestDto) {
     StoreCategory storeCategory = findById(storeCategoryId);
-    storeCategory.setStoreCategoryName(storeCategoryUpdateRequestDto.getStoreCategoryName());
-    return new StoreCategoryUpdateResponseDto(storeCategory);
+    storeCategory.setStoreCategoryName(storeCategoryRequestDto.getStoreCategoryName());
+    return new StoreCategoryResponseDto(storeCategory);
   }
 
   @Transactional
@@ -48,13 +46,13 @@ public class StoreCategoryService {
   }
 
   @Transactional
-  public Page<StoreCategoryCreateResponseDto> getStoreCategories(int page, int size, String sortBy, boolean isAsc) {
+  public Page<StoreCategoryResponseDto> getStoreCategories(int page, int size, String sortBy, boolean isAsc) {
     Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
     Sort sort = Sort.by(direction, sortBy);
     Pageable pageable = PageRequest.of(page, size, sort);
 
     Page<StoreCategory> storeCategoryList = storeCategoryRepository.findAllByOrderByCreatedAtAscUpdatedAtAsc(pageable);
-    return storeCategoryList.map(StoreCategoryCreateResponseDto::new);
+    return storeCategoryList.map(StoreCategoryResponseDto::new);
 
   }
 

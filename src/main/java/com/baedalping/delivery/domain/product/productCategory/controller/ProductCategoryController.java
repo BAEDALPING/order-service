@@ -1,9 +1,7 @@
 package com.baedalping.delivery.domain.product.productCategory.controller;
 
-import com.baedalping.delivery.domain.product.productCategory.dto.ProductCategoryCreateRequestDto;
-import com.baedalping.delivery.domain.product.productCategory.dto.ProductCategoryCreateResponseDto;
-import com.baedalping.delivery.domain.product.productCategory.dto.ProductCategoryUpdateRequestDto;
-import com.baedalping.delivery.domain.product.productCategory.dto.ProductCategoryUpdateResponseDto;
+import com.baedalping.delivery.domain.product.productCategory.dto.ProductCategoryRequestDto;
+import com.baedalping.delivery.domain.product.productCategory.dto.ProductCategoryResponseDto;
 import com.baedalping.delivery.domain.product.productCategory.service.ProductCategoryService;
 import com.baedalping.delivery.global.common.ApiResponse;
 import jakarta.validation.Valid;
@@ -28,16 +26,16 @@ public class ProductCategoryController {
   private final ProductCategoryService productCategoryService;
 
   @PostMapping
-  public ApiResponse<ProductCategoryCreateResponseDto> createProductCategory(@Valid @RequestBody ProductCategoryCreateRequestDto productCategoryCreateRequestDto){
-    return ApiResponse.created(productCategoryService.createProductCategory(productCategoryCreateRequestDto));
+  public ApiResponse<ProductCategoryResponseDto> createProductCategory(@Valid @RequestBody ProductCategoryRequestDto productCategoryRequestDto){
+    return ApiResponse.created(productCategoryService.createProductCategory(productCategoryRequestDto));
   }
 
   @PutMapping("/{productCategoryId}")
-  public ApiResponse<ProductCategoryUpdateResponseDto> updateProductCatgegory(
+  public ApiResponse<ProductCategoryResponseDto> updateProductCatgegory(
       @PathVariable("productCategoryId") UUID productCategoryId,
-      @Valid @RequestBody ProductCategoryUpdateRequestDto productCategoryUpdateRequestDto
+      @Valid @RequestBody ProductCategoryRequestDto productCategoryRequestDto
   ){
-    return ApiResponse.ok(productCategoryService.updateProductCatgegory(productCategoryId, productCategoryUpdateRequestDto));
+    return ApiResponse.ok(productCategoryService.updateProductCatgegory(productCategoryId, productCategoryRequestDto));
   }
 
   @DeleteMapping("/{productCategoryId}")
@@ -48,7 +46,7 @@ public class ProductCategoryController {
 
   //상품 분류 전체 조회
   @GetMapping
-  public ApiResponse<Page<ProductCategoryCreateResponseDto>> getProductCategories(
+  public ApiResponse<Page<ProductCategoryResponseDto>> getProductCategories(
       @RequestParam(value = "page", defaultValue = "0") int page,
       @RequestParam(value = "size", defaultValue = "10") int size,
       @RequestParam(value = "sortBy") String sortBy,

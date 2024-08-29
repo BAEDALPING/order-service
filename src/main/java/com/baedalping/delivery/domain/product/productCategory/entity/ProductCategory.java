@@ -1,6 +1,6 @@
 package com.baedalping.delivery.domain.product.productCategory.entity;
 
-import com.baedalping.delivery.domain.product.productCategory.dto.ProductCategoryCreateRequestDto;
+import com.baedalping.delivery.domain.product.productCategory.dto.ProductCategoryRequestDto;
 import com.baedalping.delivery.global.common.AuditField;
 import com.baedalping.delivery.domain.product.entity.Product;
 import jakarta.persistence.*;
@@ -30,7 +30,7 @@ public class ProductCategory extends AuditField {
 
     private boolean isPublic = true;
 
-    public ProductCategory(ProductCategoryCreateRequestDto productCategoryCreateRequestDto){
-        this.productCategoryName = productCategoryCreateRequestDto.getProductCategoryName();
+    public ProductCategory(ProductCategoryRequestDto productCategoryRequestDto){
+        this.productCategoryName = productCategoryRequestDto.getProductCategoryName();
     }
 }

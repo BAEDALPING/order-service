@@ -1,11 +1,11 @@
 package com.baedalping.delivery.domain.product.service;
 
 
-import com.baedalping.delivery.domain.product.dto.ProductUpdateRequestDto;
-import com.baedalping.delivery.domain.product.dto.ProductUpdateResponseDto;
+import com.baedalping.delivery.domain.product.dto.ProductRequestDto;
+import com.baedalping.delivery.domain.product.dto.ProductResponseDto;
 import com.baedalping.delivery.domain.product.entity.Product;
-import com.baedalping.delivery.domain.product.dto.ProductCreateRequestDto;
-import com.baedalping.delivery.domain.product.dto.ProductCreateResponseDto;
+import com.baedalping.delivery.domain.product.dto.ProductRequestDto;
+import com.baedalping.delivery.domain.product.dto.ProductResponseDto;
 import com.baedalping.delivery.domain.product.productCategory.service.ProductCategoryService;
 import com.baedalping.delivery.domain.product.repository.ProductRepository;
 import com.baedalping.delivery.domain.store.service.StoreService;
@@ -33,21 +33,21 @@ public class ProductService {
   private final StoreService storeService;
 
   @Transactional
-  public ProductCreateResponseDto createProduct(ProductCreateRequestDto productCreateRequestDto) {
-    ProductCategory productCategory = productCategoryService.findById(productCreateRequestDto.getProductCategoryId());
-    Store store = storeService.findById(productCreateRequestDto.getStoreId());
-    Product product = productRepository.save(new Product(productCreateRequestDto, productCategory, store));
-    return new ProductCreateResponseDto(product);
+  public ProductResponseDto createProduct(ProductRequestDto ProductRequestDto) {
+    ProductCategory productCategory = productCategoryService.findById(ProductRequestDto.getProductCategoryId());
+    Store store = storeService.findById(ProductRequestDto.getStoreId());
+    Product product = productRepository.save(new Product(ProductRequestDto, productCategory, store));
+    return new ProductResponseDto(product);
   }
 
   @Transactional
-  public ProductUpdateResponseDto updateProduct(UUID productId, ProductUpdateRequestDto productUpdateRequestDto) {
+  public ProductResponseDto updateProduct(UUID productId, ProductRequestDto ProductRequestDto) {
     Product product = findById(productId);
-    ProductCategory productCategory = productCategoryService.findById(productUpdateRequestDto.getProductCategoryId());
-    Store store = storeService.findById(productUpdateRequestDto.getStoreId());
+    ProductCategory productCategory = productCategoryService.findById(ProductRequestDto.getProductCategoryId());
+    Store store = storeService.findById(ProductRequestDto.getStoreId());
 
-    product.updateProduct(productUpdateRequestDto, productCategory, store);
-    return new ProductUpdateResponseDto(product);
+    product.updateProduct(ProductRequestDto, productCategory, store);
+    return new ProductResponseDto(product);
   }
 
   @Transactional
@@ -56,35 +56,35 @@ public class ProductService {
   }
 
   @Transactional
-  public ProductCreateResponseDto getProduct(UUID productId) {
-    return new ProductCreateResponseDto(findById(productId));
+  public ProductResponseDto getProduct(UUID productId) {
+    return new ProductResponseDto(findById(productId));
   }
 
   @Transactional
-  public Page<ProductCreateResponseDto> getProducts(int page, int size, String sortBy, boolean isAsc) {
+  public Page<ProductResponseDto> getProducts(int page, int size, String sortBy, boolean isAsc) {
     Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
     Sort sort = Sort.by(direction, sortBy);
     Pageable pageable = PageRequest.of(page, size, sort);
 
     Page<Product> productList = productRepository.findAllByOrderByCreatedAtAscUpdatedAtAsc(pageable);
-    return productList.map(ProductCreateResponseDto::new);
+    return productList.map(ProductResponseDto::new);
   }
 
   @Transactional
-  public List<ProductCreateResponseDto> getProductByStoreId(UUID storeId) {
+  public List<ProductResponseDto> getProductByStoreId(UUID storeId) {
     Store store = storeService.findById(storeId);
     List<Product> productList = productRepository.findAllByStore(store);
 
     return productList.stream()
-        .map(ProductCreateResponseDto::new)
+        .map(ProductResponseDto::new)
         .collect(Collectors.toList());
   }
 
   @Transactional
-  public List<ProductCreateResponseDto> getProductSearch(String keyword) {
+  public List<ProductResponseDto> getProductSearch(String keyword) {
     List<Product> productList = productRepository.findAllByProductNameContaining(keyword);
     return productList.stream()
-        .map(ProductCreateResponseDto::new)
+        .map(ProductResponseDto::new)
         .collect(Collectors.toList());
   }
 

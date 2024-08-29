@@ -1,9 +1,7 @@
 package com.baedalping.delivery.domain.product.controller;
 
-import com.baedalping.delivery.domain.product.dto.ProductCreateRequestDto;
-import com.baedalping.delivery.domain.product.dto.ProductCreateResponseDto;
-import com.baedalping.delivery.domain.product.dto.ProductUpdateRequestDto;
-import com.baedalping.delivery.domain.product.dto.ProductUpdateResponseDto;
+import com.baedalping.delivery.domain.product.dto.ProductRequestDto;
+import com.baedalping.delivery.domain.product.dto.ProductResponseDto;
 import com.baedalping.delivery.domain.product.service.ProductService;
 import com.baedalping.delivery.global.common.ApiResponse;
 import jakarta.validation.Valid;
@@ -29,16 +27,16 @@ public class ProductController {
   private final ProductService productService;
 
   @PostMapping
-  public ApiResponse<ProductCreateResponseDto> createProduct(@Valid @RequestBody ProductCreateRequestDto productCreateRequestDto){
-    return ApiResponse.created(productService.createProduct(productCreateRequestDto));
+  public ApiResponse<ProductResponseDto> createProduct(@Valid @RequestBody ProductRequestDto productRequestDto){
+    return ApiResponse.created(productService.createProduct(productRequestDto));
   }
 
   @PutMapping("/{productId}")
-  public ApiResponse<ProductUpdateResponseDto> updateProduct(
+  public ApiResponse<ProductResponseDto> updateProduct(
       @PathVariable("productId") UUID productId,
-      @Valid @RequestBody ProductUpdateRequestDto productUpdateRequestDto
+      @Valid @RequestBody ProductRequestDto productRequestDto
   ){
-    return ApiResponse.ok(productService.updateProduct(productId, productUpdateRequestDto));
+    return ApiResponse.ok(productService.updateProduct(productId, productRequestDto));
   }
 
   @DeleteMapping("/{productId}")
@@ -48,13 +46,13 @@ public class ProductController {
   }
 
   @GetMapping("/{productId}")
-  public ApiResponse<ProductCreateResponseDto> getProduct(@PathVariable("productId") UUID productId){
+  public ApiResponse<ProductResponseDto> getProduct(@PathVariable("productId") UUID productId){
     return ApiResponse.ok(productService.getProduct(productId));
   }
 
   //상품 전체 조회
   @GetMapping
-  public ApiResponse<Page<ProductCreateResponseDto>> getProducts(
+  public ApiResponse<Page<ProductResponseDto>> getProducts(
       @RequestParam(value = "page", defaultValue = "0") int page,
       @RequestParam(value = "size", defaultValue = "10") int size,
       @RequestParam(value = "sortBy") String sortBy,
@@ -65,7 +63,7 @@ public class ProductController {
 
   //상품 검색
   @GetMapping("/search")
-  public ApiResponse<List<ProductCreateResponseDto>> getProductSearch(@RequestParam("keyword") String keyword){
+  public ApiResponse<List<ProductResponseDto>> getProductSearch(@RequestParam("keyword") String keyword){
     return ApiResponse.ok(productService.getProductSearch(keyword));
 
   }

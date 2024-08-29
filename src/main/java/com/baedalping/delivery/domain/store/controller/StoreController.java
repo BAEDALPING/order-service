@@ -1,11 +1,9 @@
 package com.baedalping.delivery.domain.store.controller;
 
-import com.baedalping.delivery.domain.product.dto.ProductCreateResponseDto;
+import com.baedalping.delivery.domain.product.dto.ProductResponseDto;
 import com.baedalping.delivery.domain.product.service.ProductService;
-import com.baedalping.delivery.domain.store.dto.StoreCreateRequestDto;
-import com.baedalping.delivery.domain.store.dto.StoreCreateResponseDto;
-import com.baedalping.delivery.domain.store.dto.StoreUpdateRequestDto;
-import com.baedalping.delivery.domain.store.dto.StoreUpdateResponseDto;
+import com.baedalping.delivery.domain.store.dto.StoreRequestDto;
+import com.baedalping.delivery.domain.store.dto.StoreResponseDto;
 import com.baedalping.delivery.domain.store.service.StoreService;
 import com.baedalping.delivery.global.common.ApiResponse;
 import jakarta.validation.Valid;
@@ -33,16 +31,16 @@ public class StoreController {
   private final ProductService productService;
 
   @PostMapping
-  public ApiResponse<StoreCreateResponseDto> createStore(@Valid @RequestBody StoreCreateRequestDto storeCreateRequestDto){
-    return ApiResponse.created(storeService.createStore(storeCreateRequestDto));
+  public ApiResponse<StoreResponseDto> createStore(@Valid @RequestBody StoreRequestDto storeRequestDto){
+    return ApiResponse.created(storeService.createStore(storeRequestDto));
   }
 
   @PutMapping("/{storeId}")
-  public ApiResponse<StoreUpdateResponseDto> updateStore(
+  public ApiResponse<StoreResponseDto> updateStore(
       @PathVariable("storeId") UUID storeId,
-      @Valid @RequestBody StoreUpdateRequestDto storeUpdateRequestDto
+      @Valid @RequestBody StoreRequestDto StoreRequestDto
   ){
-    return ApiResponse.ok(storeService.updateStore(storeId, storeUpdateRequestDto));
+    return ApiResponse.ok(storeService.updateStore(storeId, StoreRequestDto));
   }
 
   @DeleteMapping("/{storeId}")
@@ -52,13 +50,13 @@ public class StoreController {
   }
 
   @GetMapping("/{storeId}")
-  public ApiResponse<StoreCreateResponseDto> getStore(@PathVariable("storeId") UUID storeId){
+  public ApiResponse<StoreResponseDto> getStore(@PathVariable("storeId") UUID storeId){
     return ApiResponse.ok(storeService.getStore(storeId));
   }
 
   //가게 전체 조회
   @GetMapping
-  public ApiResponse<Page<StoreCreateResponseDto>> getStores(
+  public ApiResponse<Page<StoreResponseDto>> getStores(
       @RequestParam(value = "page", defaultValue = "0") int page,
       @RequestParam(value = "size", defaultValue = "10") int size,
       @RequestParam(value = "sortBy") String sortBy,
@@ -69,14 +67,14 @@ public class StoreController {
 
   //가게별 상품 조회
   @GetMapping("/{storeId}/products")
-  public ApiResponse<List<ProductCreateResponseDto>> getProductByStoreId(
+  public ApiResponse<List<ProductResponseDto>> getProductByStoreId(
       @PathVariable("storeId") UUID storeId){
     return ApiResponse.ok(productService.getProductByStoreId(storeId));
   }
 
   //가게 검색
   @GetMapping("/search")
-  public ApiResponse<List<StoreCreateResponseDto>> getStoreSearch(@RequestParam("keyword") String keyword){
+  public ApiResponse<List<StoreResponseDto>> getStoreSearch(@RequestParam("keyword") String keyword){
     return ApiResponse.ok(storeService.getStoreSearch(keyword));
   }
 

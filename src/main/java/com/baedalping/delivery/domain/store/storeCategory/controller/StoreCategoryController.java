@@ -1,12 +1,10 @@
 package com.baedalping.delivery.domain.store.storeCategory.controller;
 
 
-import com.baedalping.delivery.domain.store.dto.StoreCreateResponseDto;
+import com.baedalping.delivery.domain.store.dto.StoreResponseDto;
 import com.baedalping.delivery.domain.store.service.StoreService;
-import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryCreateRequestDto;
-import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryCreateResponseDto;
-import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryUpdateRequestDto;
-import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryUpdateResponseDto;
+import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryRequestDto;
+import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryResponseDto;
 import com.baedalping.delivery.domain.store.storeCategory.service.StoreCategoryService;
 import com.baedalping.delivery.global.common.ApiResponse;
 import jakarta.validation.Valid;
@@ -33,16 +31,16 @@ public class StoreCategoryController {
   private final StoreService storeService;
 
   @PostMapping
-  public ApiResponse<StoreCategoryCreateResponseDto> createStoreCategory(@Valid @RequestBody StoreCategoryCreateRequestDto storeCategoryCreateRequestDto){
-    return ApiResponse.created(storeCategoryService.createStoreCategory(storeCategoryCreateRequestDto));
+  public ApiResponse<StoreCategoryResponseDto> createStoreCategory(@Valid @RequestBody StoreCategoryRequestDto storeCategoryRequestDto){
+    return ApiResponse.created(storeCategoryService.createStoreCategory(storeCategoryRequestDto));
   }
 
   @PutMapping("/{storeCategoryId}")
-  public ApiResponse<StoreCategoryUpdateResponseDto> updateStoreCategory(
+  public ApiResponse<StoreCategoryResponseDto> updateStoreCategory(
       @PathVariable("storeCategoryId") UUID storeCategoryId,
-      @Valid @RequestBody StoreCategoryUpdateRequestDto storeCategoryUpdateRequestDto
+      @Valid @RequestBody StoreCategoryRequestDto storeCategoryRequestDto
   ){
-    return ApiResponse.ok(storeCategoryService.updateStoreCategory(storeCategoryId, storeCategoryUpdateRequestDto));
+    return ApiResponse.ok(storeCategoryService.updateStoreCategory(storeCategoryId, storeCategoryRequestDto));
   }
 
   @DeleteMapping("/{storeCategoryId}")
@@ -53,7 +51,7 @@ public class StoreCategoryController {
 
   //가게 분류 전체 조회
   @GetMapping
-  public ApiResponse<Page<StoreCategoryCreateResponseDto>> getStoreCategories(
+  public ApiResponse<Page<StoreCategoryResponseDto>> getStoreCategories(
       @RequestParam(value = "page", defaultValue = "0") int page,
       @RequestParam(value = "size", defaultValue = "10") int size,
       @RequestParam(value = "sortBy") String sortBy,
@@ -65,7 +63,7 @@ public class StoreCategoryController {
 
   //가게 분류별 가게 조회
   @GetMapping("/{storeCategoryId}")
-  public ApiResponse<List<StoreCreateResponseDto>> getStoresByStoreCategoryId(
+  public ApiResponse<List<StoreResponseDto>> getStoresByStoreCategoryId(
       @PathVariable("storeCategoryId") UUID storeCategoryId){
     return ApiResponse.ok(storeService.getStoresByStoreCategoryId(storeCategoryId));
   }
