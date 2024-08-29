@@ -58,7 +58,7 @@ public class UserAddress extends AuditField {
     this.isPublic = false;
   }
 
-  public void update(String address, String zipcode, String alias){
+  public void update(String address, String zipcode, String alias) {
     this.address = address;
     this.zipcode = zipcode;
     this.alias = alias;
