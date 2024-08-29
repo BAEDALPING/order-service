@@ -9,10 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthLoginResponseDto {
-  @NotBlank
-  private String accessToken;
+  @NotBlank private String accessToken;
 
-  public static AuthLoginResponseDto of(String token){
+  public static AuthLoginResponseDto of(String token) {
     return new AuthLoginResponseDto(token);
   }
 }
