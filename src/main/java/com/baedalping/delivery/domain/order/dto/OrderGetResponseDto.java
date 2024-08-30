@@ -1,6 +1,7 @@
 package com.baedalping.delivery.domain.order.dto;
 
 import com.baedalping.delivery.domain.order.entity.OrderStatus;
+import com.baedalping.delivery.domain.order.entity.OrderType;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,7 @@ public class OrderGetResponseDto {
     private Long userId;
     private UUID storeId;
     private OrderStatus state;
+    private OrderType orderType;
     private Integer totalQuantity;
     private Integer totalPrice;
     private String shippingAddress;

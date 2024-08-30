@@ -7,9 +7,11 @@ import com.baedalping.delivery.domain.order.dto.OrderGetResponseDto;
 import com.baedalping.delivery.domain.order.entity.Order;
 import com.baedalping.delivery.domain.order.entity.OrderDetail;
 import com.baedalping.delivery.domain.order.entity.OrderStatus;
+import com.baedalping.delivery.domain.order.entity.OrderType;
 import com.baedalping.delivery.domain.order.repository.OrderRepository;
 import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
 import com.baedalping.delivery.global.common.exception.ErrorCode;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +39,9 @@ public class OrderService {
     private final Long userId = 1L;
 
     @Transactional
-    public OrderCreateResponseDto createOrder(UUID addressID) {
+    public OrderCreateResponseDto createOrder(UUID addressID, OrderType orderType) {
         Map<String, Integer> orderDetailList = fetchCartItems(); // 장바구니 내용물 가져오기
-        Order order = buildOrder(orderDetailList, addressID); // Order 엔티티 생성
+        Order order = buildOrder(orderDetailList, addressID, orderType); // Order 엔티티 생성
         saveOrder(order); // Order 저장
 
         List<OrderDetail> orderDetails = createAndSaveOrderDetails(order,
@@ -95,10 +97,11 @@ public class OrderService {
         return orderDetailList;
     }
 
-    private Order buildOrder(Map<String, Integer> orderDetailList, UUID addressID) {
+    private Order buildOrder(Map<String, Integer> orderDetailList, UUID addressID, OrderType orderType) {
         return Order.builder()
             .orderDate(LocalDateTime.now())
             .userId(userId)
+            .orderType(orderType)
             .storeId(extractStoreId(orderDetailList))  // 장바구니에서 storeId 추출하는 메서드
             .state(OrderStatus.PENDING)
             .totalQuantity(calculateTotalQuantity(orderDetailList))  // 총 수량 계산하는 메서드
@@ -191,14 +194,13 @@ public class OrderService {
         );
     }
 
-
 //    public OrderCreateResponseDto getOrderById(UUID orderId) {
 //        Order order = orderRepository.findById(orderId)
 //            .orElseThrow(() -> new IllegalArgumentException("Order not found"));
 //        return convertToOrderDTO(order);
 //    }
 
-//    public List<Order> getOrdersByStoreId(UUID storeId) {
+    //    public List<Order> getOrdersByStoreId(UUID storeId) {
 //        return null;
 //    }
 //
@@ -211,7 +213,20 @@ public class OrderService {
 //    }
 //
 //
-//    public Order cancelOrder(UUID orderId) {
-//        return null;
-//    }
+    @Transactional
+    public OrderGetResponseDto cancelOrder(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_ORDER));
+
+        // 주문 생성 후 5분 이내에만 취소 가능하도록 체크
+        LocalDateTime now = LocalDateTime.now();
+        if (Duration.between(order.getOrderDate(), now).toMinutes() > 5) {
+            throw new DeliveryApplicationException(ErrorCode.CANNOT_CANCEL_ORDER_AFTER_5_MINUTES);
+        }
+
+        // 취소된 주문도 고객이 볼 수 있을것인가? (IsPublic을 false로 전환해야 하는가)
+        order.setState(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+        return orderMapperService.convert(order, OrderGetResponseDto.class);
+    }
 }

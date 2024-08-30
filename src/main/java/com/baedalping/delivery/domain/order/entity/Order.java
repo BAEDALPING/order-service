@@ -52,6 +52,11 @@ public class Order extends AuditField {
     private OrderStatus state;
 
     @Setter
+    @Enumerated(EnumType.STRING)
+    @Column(name = "order_type", length = 20, nullable = false)
+    private OrderType orderType = OrderType.ONLINE;
+
+    @Setter
     @Column(name = "total_quantity", nullable = false)
     private Integer totalQuantity;
 
