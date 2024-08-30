@@ -1,5 +1,6 @@
 package com.baedalping.delivery.domain.order.dto;
 
+import com.baedalping.delivery.domain.order.entity.OrderType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
@@ -13,5 +14,8 @@ public class OrderCreateRequestDto {
         message = "Address ID must be a valid UUID"
     )
     private String addressId;
+
+    @NotNull(message = "Order type is required")
+    private OrderType orderType;
 
 }

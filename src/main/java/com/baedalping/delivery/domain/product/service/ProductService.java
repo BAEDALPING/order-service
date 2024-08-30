@@ -1,0 +1,57 @@
+package com.baedalping.delivery.domain.product.service;
+
+
+import com.baedalping.delivery.domain.product.dto.ProductUpdateRequestDto;
+import com.baedalping.delivery.domain.product.dto.ProductUpdateResponseDto;
+import com.baedalping.delivery.domain.product.entity.Product;
+import com.baedalping.delivery.domain.product.dto.ProductCreateRequestDto;
+import com.baedalping.delivery.domain.product.dto.ProductCreateResponseDto;
+import com.baedalping.delivery.domain.product.productCategory.service.ProductCategoryService;
+import com.baedalping.delivery.domain.product.repository.ProductRepository;
+import com.baedalping.delivery.domain.store.service.StoreService;
+import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
+import com.baedalping.delivery.global.common.exception.ErrorCode;
+import com.baedalping.delivery.domain.product.productCategory.entity.ProductCategory;
+import com.baedalping.delivery.domain.store.entity.Store;
+import jakarta.transaction.Transactional;
+import java.util.UUID;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@Service
+@AllArgsConstructor
+public class ProductService {
+
+  private final ProductRepository productRepository;
+  private final ProductCategoryService productCategoryService;
+  private final StoreService storeService;
+
+  @Transactional
+  public ProductCreateResponseDto createProduct(ProductCreateRequestDto productCreateRequestDto) {
+    ProductCategory productCategory = productCategoryService.findById(productCreateRequestDto.getProductCategoryId());
+    Store store = storeService.findById(productCreateRequestDto.getStoreId());
+    Product product = productRepository.save(new Product(productCreateRequestDto, productCategory, store));
+    return new ProductCreateResponseDto(product);
+  }
+
+  @Transactional
+  public ProductUpdateResponseDto updateProduct(UUID productId, ProductUpdateRequestDto productUpdateRequestDto) {
+    Product product = findById(productId);
+    ProductCategory productCategory = productCategoryService.findById(productUpdateRequestDto.getProductCategoryId());
+    Store store = storeService.findById(productUpdateRequestDto.getStoreId());
+
+    product.updateProduct(productUpdateRequestDto, productCategory, store);
+    return new ProductUpdateResponseDto(product);
+  }
+
+  @Transactional
+  public void deleteProduct(UUID productId) {
+    findById(productId).delete(null);
+  }
+
+  public Product findById(UUID productId) {
+    return productRepository.findById(productId).orElseThrow(
+            () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT)
+        );
+  }
+}
