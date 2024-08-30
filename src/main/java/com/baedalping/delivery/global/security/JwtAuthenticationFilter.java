@@ -4,13 +4,18 @@ import static com.baedalping.delivery.global.utils.JwtTokenUtils.AUTHORIZATION_H
 
 import com.baedalping.delivery.domain.auth.dto.AuthLoginRequestDto;
 import com.baedalping.delivery.domain.user.dto.UserDetailsImpl;
+import com.baedalping.delivery.global.common.ApiResponse;
+import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
+import com.baedalping.delivery.global.common.exception.ErrorCode;
 import com.baedalping.delivery.global.utils.JwtTokenUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -40,7 +45,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     } catch (IOException e) {
       log.error("Occurs in JwtAuthenticationFilter");
-      throw new RuntimeException(e.getMessage());
+      throw new DeliveryApplicationException(ErrorCode.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -57,7 +62,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
   @Override
   protected void unsuccessfulAuthentication(
-      HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
-    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      HttpServletRequest request, HttpServletResponse response, AuthenticationException failed)
+      throws IOException {
+    response.setContentType("application/json");
+    response.setCharacterEncoding("UTF-8");
+    response.setStatus(ErrorCode.INVALID_PASSWORD.getStatus().value());
+
+    String responseData = new ObjectMapper().writeValueAsString(ApiResponse.error(ErrorCode.INVALID_PASSWORD));
+    response.getWriter().write(responseData);
   }
 }
