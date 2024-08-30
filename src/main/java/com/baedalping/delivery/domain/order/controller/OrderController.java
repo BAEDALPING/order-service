@@ -25,6 +25,9 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    /*
+    TODO: body로 받아오고 있는 주문 상세 내역을 Redis에서 가져오도록 변경할 것
+     */
     @PostMapping
     public ApiResponse<OrderCreateResponseDto> createOrder(
         @RequestBody @Valid OrderCreateRequestDto orderRequest) {
@@ -70,16 +73,21 @@ public class OrderController {
             orderService.getOrderById(orderId)
         );
     }
-//
-//    // 주문 키워드 검색
-//    @GetMapping("/search")
-//    public List<Order> searchOrders(@RequestParam String keyword) {
-//        return orderService.searchOrders(keyword);
-//    }
-//
-//
-    // 주문 취소
 
+    //
+    // 주문 키워드 검색
+    @GetMapping("/search")
+    public ApiResponse<Page<OrderGetResponseDto>> searchOrders(
+        @RequestParam String keyword,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "asc") String sortDirection) {
+        return ApiResponse.ok(
+            orderService.searchOrdersByKeyword(keyword, page, size, sortDirection));
+    }
+
+
+    // 주문 취소
     @DeleteMapping("/{orderId}/cancel")
     public ApiResponse<OrderGetResponseDto> cancelOrder(@PathVariable UUID orderId) {
         return ApiResponse.ok(orderService.cancelOrder(orderId));
