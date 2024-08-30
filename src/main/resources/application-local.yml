@@ -21,3 +21,7 @@ spring:
 logging:
   level:
     org.springframework.security: DEBUG
+
+jwt:
+  secret-key: ${JWT_SECRET}
+  access-time: 3600000

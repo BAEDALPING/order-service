@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class ExceptionControllerAdvice {
   @ExceptionHandler(DeliveryApplicationException.class)
-  public ResponseEntity<?> runtimeExceptionHandler(final DeliveryApplicationException exception) {
+  public ResponseEntity<?> appException(final DeliveryApplicationException exception) {
     log.error("Error occurs in {}", exception.toString());
     return ResponseEntity.status(exception.getErrorCode().getStatus())
         .body(ApiResponse.error(exception.getErrorCode()));
@@ -27,5 +27,12 @@ public class ExceptionControllerAdvice {
             .toArray(String[]::new);
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(ApiResponse.error(HttpStatus.BAD_REQUEST, errorMessages));
+  }
+
+  @ExceptionHandler(RuntimeException.class)
+  public ResponseEntity<?> runtimeExceptionHandler(final RuntimeException exception) {
+    log.error("Error occurs in {}", exception.toString());
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage()));
   }
 }
