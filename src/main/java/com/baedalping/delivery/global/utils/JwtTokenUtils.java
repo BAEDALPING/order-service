@@ -51,7 +51,7 @@ public class JwtTokenUtils {
     if (StringUtils.hasText(token) && token.startsWith(BEARER_PREFIX)) {
       return token.split(" ")[1].trim();
     }
-    return null;
+    throw new DeliveryApplicationException(ErrorCode.INVALID_TOKEN);
   }
 
   public String getUserSignature(String token) {

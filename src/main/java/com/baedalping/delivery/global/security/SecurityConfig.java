@@ -5,12 +5,14 @@ import com.baedalping.delivery.global.utils.UserDetailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -21,6 +23,7 @@ public class SecurityConfig {
   private final JwtTokenUtils jwtUtil;
   private final UserDetailServiceImpl userDetailService;
   private final AuthenticationConfiguration authenticationConfiguration;
+  private final AuthenticationEntryPoint entryPoint;
 
   @Bean
   public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
@@ -49,12 +52,17 @@ public class SecurityConfig {
         .authorizeHttpRequests(
             (authorizeRequests) ->
                 authorizeRequests
+                    .requestMatchers(HttpMethod.POST, "/users")
+                    .permitAll()
                     .requestMatchers("/auth/**", "/error")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
         .addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class)
-        .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+        .exceptionHandling(
+            (exceptionHandling) -> exceptionHandling.authenticationEntryPoint(entryPoint));
+
     return http.build();
   }
 

@@ -45,7 +45,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       }
     } catch (RuntimeException exception) {
       log.error("occurs exception in JwtAuthorizationFilter");
-      throw new DeliveryApplicationException(ErrorCode.INVALID_TOKEN);
+      request.setAttribute("exception", exception);
     }
 
     filterChain.doFilter(request, response);
