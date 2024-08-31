@@ -9,9 +9,6 @@ import com.baedalping.delivery.domain.order.entity.OrderDetail;
 import com.baedalping.delivery.domain.order.entity.OrderStatus;
 import com.baedalping.delivery.domain.order.entity.OrderType;
 import com.baedalping.delivery.domain.order.repository.OrderRepository;
-import com.baedalping.delivery.domain.payment.entity.Payment;
-import com.baedalping.delivery.domain.payment.entity.PaymentState;
-import com.baedalping.delivery.domain.payment.service.PaymentService;
 import com.baedalping.delivery.domain.product.entity.Product;
 import com.baedalping.delivery.domain.product.repository.ProductRepository;
 import com.baedalping.delivery.domain.store.entity.Store;
@@ -48,7 +45,6 @@ public class OrderService {
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
     private final UserAddressRepository userAddressRepository;
-    private final PaymentService paymentService; // 결제 서비스 추가
 
 
     @Transactional
@@ -57,10 +53,12 @@ public class OrderService {
 
         Map<String, Integer> orderDetailList = fetchCartItems(userId);
         Order order = buildOrder(orderDetailList, userId, addressID, orderType);
+        // TODO: 주문 생성 전 가게 영업시간 체크
         saveOrder(order);
 
         List<OrderDetail> orderDetails = createAndSaveOrderDetails(order, orderDetailList);
-        List<OrderDetailResponseDto> orderDetailResponseDtos = orderMapperService.convertList(orderDetails, OrderDetailResponseDto.class);
+        List<OrderDetailResponseDto> orderDetailResponseDtos = orderMapperService.convertList(
+            orderDetails, OrderDetailResponseDto.class);
 
         clearCart(userId);
 
@@ -69,7 +67,8 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public Page<OrderGetResponseDto> getOrdersByStoreId(UUID storeId, int page, int size, String sortDirection) {
+    public Page<OrderGetResponseDto> getOrdersByStoreId(UUID storeId, int page, int size,
+        String sortDirection) {
         Sort sort = createSort(sortDirection);
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<Order> orders = orderRepository.findByStore_StoreIdAndIsPublicTrue(storeId, pageable);
@@ -77,7 +76,8 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public Page<OrderGetResponseDto> getOrdersByUserId(Long userId, int page, int size, String sortDirection) {
+    public Page<OrderGetResponseDto> getOrdersByUserId(Long userId, int page, int size,
+        String sortDirection) {
         Sort sort = createSort(sortDirection);
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<Order> orders = orderRepository.findByUser_UserIdAndIsPublicTrue(userId, pageable);
@@ -113,7 +113,8 @@ public class OrderService {
         return orderDetailList;
     }
 
-    private Order buildOrder(Map<String, Integer> orderDetailList, Long userId, UUID addressID, OrderType orderType) {
+    private Order buildOrder(Map<String, Integer> orderDetailList, Long userId, UUID addressID,
+        OrderType orderType) {
         return Order.builder()
             .orderDate(LocalDateTime.now())
             .user(getUser(userId))
@@ -131,7 +132,8 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    private List<OrderDetail> createAndSaveOrderDetails(Order order, Map<String, Integer> orderDetailList) {
+    private List<OrderDetail> createAndSaveOrderDetails(Order order,
+        Map<String, Integer> orderDetailList) {
         List<OrderDetail> orderDetails = createOrderDetails(order, orderDetailList);
         order.setOrderDetails(orderDetails);
         orderDetailService.saveOrderDetails(orderDetails);
@@ -176,7 +178,8 @@ public class OrderService {
         return address.getAddress();
     }
 
-    private List<OrderDetail> createOrderDetails(Order order, Map<String, Integer> orderDetailList) {
+    private List<OrderDetail> createOrderDetails(Order order,
+        Map<String, Integer> orderDetailList) {
         List<OrderDetail> orderDetails = new ArrayList<>();
 
         for (Map.Entry<String, Integer> entry : orderDetailList.entrySet()) {
@@ -212,13 +215,16 @@ public class OrderService {
 
     private Sort createSort(String sortDirection) {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-        return Sort.by(new Sort.Order(direction, "createdAt"), new Sort.Order(direction, "updatedAt"));
+        return Sort.by(new Sort.Order(direction, "createdAt"),
+            new Sort.Order(direction, "updatedAt"));
     }
 
-    public Page<OrderGetResponseDto> searchOrdersByKeyword(String keyword, int page, int size, String sortDirection) {
+    public Page<OrderGetResponseDto> searchOrdersByKeyword(String keyword, int page, int size,
+        String sortDirection) {
         Sort sort = createSort(sortDirection);
         Pageable pageable = PageRequest.of(page, size, sort);
-        return orderMapperService.convertPage(orderRepository.findOrdersByKeyword(keyword, pageable), OrderGetResponseDto.class);
+        return orderMapperService.convertPage(
+            orderRepository.findOrdersByKeyword(keyword, pageable), OrderGetResponseDto.class);
     }
 
     public User getUser(Long userId) {
@@ -241,16 +247,21 @@ public class OrderService {
             throw new DeliveryApplicationException(ErrorCode.CANNOT_CANCEL_ORDER_AFTER_5_MINUTES);
         }
 
-        // 결제 취소 처리
-        Payment payment = order.getPayment();
-        if (payment != null && payment.getState() == PaymentState.COMPLETE) {
-            boolean paymentCancelled = paymentService.cancelPayment(payment.getPaymentId())
-                .getIsPublic();
-            if (!paymentCancelled) {
-                throw new DeliveryApplicationException(ErrorCode.PAYMENT_CANCELLATION_FAILED);
-            }
-            payment.setState(PaymentState.CANCELLED);
-        }
+        /*
+         결제 취소 처리 시나리오
+         1. 클라이언트에서 주문 취소 요청
+         2. 주문 취소가 정상적으로 진행 후 외주 결제 모듈로 요청
+         3. 외부 결제 모듈이 정상 처리 된 후 결제 취소 api로 리다이랙팅
+         */
+//        Payment payment = order.getPayment();
+//        if (payment != null && payment.getState() == PaymentState.COMPLETE) {
+//            boolean paymentCancelled = paymentService.cancelPayment(payment.getPaymentId(), userId)
+//                .getIsPublic();
+//            if (!paymentCancelled) {
+//                throw new DeliveryApplicationException(ErrorCode.PAYMENT_CANCELLATION_FAILED);
+//            }
+//            payment.setState(PaymentState.CANCELLED);
+//        }
 
         // 주문 취소 처리
         order.setState(OrderStatus.CANCELLED);
