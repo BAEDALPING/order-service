@@ -1,8 +1,8 @@
 package com.baedalping.delivery.domain.store.storeCategory.entity;
 
-import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryCreateRequestDto;
-import com.baedalping.delivery.global.common.AuditField;
 import com.baedalping.delivery.domain.store.entity.Store;
+import com.baedalping.delivery.domain.store.storeCategory.dto.StoreCategoryRequestDto;
+import com.baedalping.delivery.global.common.AuditField;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,7 +10,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -37,8 +36,8 @@ public class StoreCategory extends AuditField {
 
   private boolean isPublic = true;
 
-  public StoreCategory(StoreCategoryCreateRequestDto storeCategoryCreateRequestDto){
-    this.storeCategoryName = storeCategoryCreateRequestDto.getStoreCategoryName();
+  public StoreCategory(StoreCategoryRequestDto storeCategoryRequestDto){
+    this.storeCategoryName = storeCategoryRequestDto.getStoreCategoryName();
   }
 
 }

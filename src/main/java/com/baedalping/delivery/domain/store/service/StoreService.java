@@ -3,10 +3,8 @@ package com.baedalping.delivery.domain.store.service;
 
 import com.baedalping.delivery.domain.product.entity.Product;
 import com.baedalping.delivery.domain.product.repository.ProductRepository;
-import com.baedalping.delivery.domain.store.dto.StoreCreateRequestDto;
-import com.baedalping.delivery.domain.store.dto.StoreCreateResponseDto;
-import com.baedalping.delivery.domain.store.dto.StoreUpdateRequestDto;
-import com.baedalping.delivery.domain.store.dto.StoreUpdateResponseDto;
+import com.baedalping.delivery.domain.store.dto.StoreRequestDto;
+import com.baedalping.delivery.domain.store.dto.StoreResponseDto;
 import com.baedalping.delivery.domain.store.entity.Store;
 import com.baedalping.delivery.domain.store.repository.StoreRepository;
 import com.baedalping.delivery.domain.store.storeCategory.service.StoreCategoryService;
@@ -16,7 +14,12 @@ import com.baedalping.delivery.domain.store.storeCategory.entity.StoreCategory;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,18 +30,18 @@ public class StoreService {
   private final StoreCategoryService storeCategoryService;
 
   @Transactional
-  public StoreCreateResponseDto createStore(StoreCreateRequestDto storeCreateRequestDto) {
-    StoreCategory storeCategory = storeCategoryService.findById(storeCreateRequestDto.getStoreCategoryId());
-    Store store =  storeRepository.save(new Store(storeCreateRequestDto, storeCategory));
-    return new StoreCreateResponseDto(store);
+  public StoreResponseDto createStore(StoreRequestDto storeRequestDto) {
+    StoreCategory storeCategory = storeCategoryService.findById(storeRequestDto.getStoreCategoryId());
+    Store store =  storeRepository.save(new Store(storeRequestDto, storeCategory));
+    return new StoreResponseDto(store);
   }
 
   @Transactional
-  public StoreUpdateResponseDto updateStore(UUID storeId, StoreUpdateRequestDto storeUpdateRequestDto) {
+  public StoreResponseDto updateStore(UUID storeId, StoreRequestDto StoreRequestDto) {
     Store store = findById(storeId);
-    StoreCategory storeCategory = storeCategoryService.findById(storeUpdateRequestDto.getStoreCategoryId());
-    store.updateStore(storeUpdateRequestDto, storeCategory);
-    return new StoreUpdateResponseDto(store);
+    StoreCategory storeCategory = storeCategoryService.findById(StoreRequestDto.getStoreCategoryId());
+    store.updateStore(StoreRequestDto, storeCategory);
+    return new StoreResponseDto(store);
   }
 
   @Transactional
@@ -53,9 +56,44 @@ public class StoreService {
     store.delete(null);
   }
 
+  @Transactional
+  public StoreResponseDto getStore(UUID storeId) {
+    return new StoreResponseDto(findById(storeId));
+  }
+
+  @Transactional
+  public List<StoreResponseDto> getStoresByStoreCategoryId(UUID storeCategoryId) {
+    StoreCategory storeCategory = storeCategoryService.findById(storeCategoryId);
+    List<Store> storeList = storeRepository.findAllByStoreCategory(storeCategory);
+
+    return storeList.stream()
+        .map(StoreResponseDto::new)
+        .collect(Collectors.toList());
+  }
+
+  @Transactional
+  public Page<StoreResponseDto> getStores(int page, int size, String sortBy, boolean isAsc) {
+    Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
+    Sort sort = Sort.by(direction, sortBy);
+    Pageable pageable = PageRequest.of(page, size, sort);
+
+    Page<Store> storeList = storeRepository.findAllByOrderByCreatedAtAscUpdatedAtAsc(pageable);
+    return storeList.map(StoreResponseDto::new);
+  }
+
+  @Transactional
+  public List<StoreResponseDto> getStoreSearch(String keyword) {
+    List<Store> storeList = storeRepository.findAllByStoreNameContaining(keyword);
+    return storeList.stream()
+        .map(StoreResponseDto::new)
+        .collect(Collectors.toList());
+  }
+
+
   public Store findById(UUID storeId) {
     return storeRepository.findById(storeId).orElseThrow(
         () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE)
     );
   }
+
 }

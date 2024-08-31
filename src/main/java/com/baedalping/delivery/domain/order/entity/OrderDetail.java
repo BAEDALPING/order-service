@@ -1,5 +1,6 @@
 package com.baedalping.delivery.domain.order.entity;
 
+import com.baedalping.delivery.domain.product.entity.Product;
 import com.baedalping.delivery.global.common.AuditField;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -36,8 +37,10 @@ public class OrderDetail extends AuditField {
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    @Column(name = "product_id", columnDefinition = "UUID", nullable = false)
-    private UUID productId;
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false, columnDefinition = "UUID")
+    private Product product;
 
     @Column(name = "product_name", length = 255, nullable = false)
     private String productName;
@@ -51,6 +54,4 @@ public class OrderDetail extends AuditField {
     @Setter
     @Column(name = "subtotal",  nullable = false)
     private Integer subtotal;
-
-
 }

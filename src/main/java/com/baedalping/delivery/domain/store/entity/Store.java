@@ -1,7 +1,6 @@
 package com.baedalping.delivery.domain.store.entity;
 
-import com.baedalping.delivery.domain.store.dto.StoreCreateRequestDto;
-import com.baedalping.delivery.domain.store.dto.StoreUpdateRequestDto;
+import com.baedalping.delivery.domain.store.dto.StoreRequestDto;
 import com.baedalping.delivery.global.common.AuditField;
 import com.baedalping.delivery.domain.product.entity.Product;
 import com.baedalping.delivery.domain.store.storeCategory.entity.StoreCategory;
@@ -58,7 +57,7 @@ public class Store extends AuditField {
 
   private LocalTime closeTime;
 
-  private boolean isPublic = true;
+  private boolean isPublic = false;
 
 
   public void addStoreCategory(StoreCategory storeCategory){
@@ -66,23 +65,23 @@ public class Store extends AuditField {
     storeCategory.getStoreList().add(this);
   }
 
-  public Store(StoreCreateRequestDto storeCreateRequestDto, StoreCategory storeCategory){
-    this.storeName = storeCreateRequestDto.getStoreName();
-    this.storePhone = storeCreateRequestDto.getStorePhone();
-    this.storeAddress = storeCreateRequestDto.getStoreAddress();
-    this.storeDetail = storeCreateRequestDto.getStoreDetail();
-    this.openTime = storeCreateRequestDto.getOpenTime();
-    this.closeTime = storeCreateRequestDto.getCloseTime();
+  public Store(StoreRequestDto storeRequestDto, StoreCategory storeCategory){
+    this.storeName = storeRequestDto.getStoreName();
+    this.storePhone = storeRequestDto.getStorePhone();
+    this.storeAddress = storeRequestDto.getStoreAddress();
+    this.storeDetail = storeRequestDto.getStoreDetail();
+    this.openTime = storeRequestDto.getOpenTime();
+    this.closeTime = storeRequestDto.getCloseTime();
     this.storeCategory = storeCategory;
   }
 
-  public void updateStore(StoreUpdateRequestDto storeUpdateRequestDto, StoreCategory storeCategory){
-    this.storeName = storeUpdateRequestDto.getStoreName();
-    this.storePhone = storeUpdateRequestDto.getStorePhone();
-    this.storeAddress = storeUpdateRequestDto.getStoreAddress();
-    this.storeDetail = storeUpdateRequestDto.getStoreDetail();
-    this.openTime = storeUpdateRequestDto.getOpenTime();
-    this.closeTime = storeUpdateRequestDto.getCloseTime();
+  public void updateStore(StoreRequestDto StoreRequestDto, StoreCategory storeCategory){
+    this.storeName = StoreRequestDto.getStoreName();
+    this.storePhone = StoreRequestDto.getStorePhone();
+    this.storeAddress = StoreRequestDto.getStoreAddress();
+    this.storeDetail = StoreRequestDto.getStoreDetail();
+    this.openTime = StoreRequestDto.getOpenTime();
+    this.closeTime = StoreRequestDto.getCloseTime();
     this.storeCategory = storeCategory;
   }
 }

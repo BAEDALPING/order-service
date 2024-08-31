@@ -1,15 +1,22 @@
 package com.baedalping.delivery.domain.order.entity;
 
+import com.baedalping.delivery.domain.payment.entity.Payment;
+import com.baedalping.delivery.domain.store.entity.Store;
+import com.baedalping.delivery.domain.user.entity.User;
 import com.baedalping.delivery.global.common.AuditField;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,11 +40,19 @@ public class Order extends AuditField {
     @Column(name = "order_id", updatable = false, nullable = false, columnDefinition = "UUID")
     private UUID orderId;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false) // JoinColumn을 통해 외래 키 설정
+    private User user;
 
-    @Column(name = "store_id", columnDefinition = "UUID", nullable = false)
-    private UUID storeId;
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false, columnDefinition = "UUID") // JoinColumn을 통해 외래 키 설정
+    private Store store;
+
+    @Setter
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Payment payment; // Payment와의 One-to-One 관계 설정
 
     @Setter
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -54,7 +69,7 @@ public class Order extends AuditField {
     @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "order_type", length = 20, nullable = false)
-    private OrderType orderType = OrderType.ONLINE;
+    private OrderType orderType;
 
     @Setter
     @Column(name = "total_quantity", nullable = false)
@@ -69,10 +84,4 @@ public class Order extends AuditField {
 
     @Column(name = "is_public", nullable = false)
     private Boolean isPublic = true;
-
-
-
-
-
-
 }

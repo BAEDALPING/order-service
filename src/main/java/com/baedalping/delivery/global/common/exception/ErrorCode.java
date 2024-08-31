@@ -29,14 +29,23 @@ public enum ErrorCode {
   // Cart
   CART_ONLY_ONE_STORE_ALLOWED(HttpStatus.BAD_REQUEST, "한 번에 하나의 가게의 상품만 담을 수 있습니다."),
   NOT_FOUND_PRODUCT_IN_CART(HttpStatus.NOT_FOUND, "장바구니에 해당 상품이 존재하지 않습니다."),
+  INVALID_PRODUCT_STORE_COMBINATION(HttpStatus.BAD_REQUEST, "상품과 가게가 올바른 조합이 아닙니다."),
+
 
   // Order
   NOT_FOUND_ORDER(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."),
   CANNOT_CANCEL_ORDER_AFTER_5_MINUTES(HttpStatus.FORBIDDEN,"주문은 5분 이내에만 취소 가능합니다." ),
+  ORDER_PERMISSION_DENIED(HttpStatus.UNAUTHORIZED, "해당 주문에 대한 권한이 없습니다." ),
 
   // Payment
   NOT_FOUND_PAYMENT(HttpStatus.NOT_FOUND, "존재하지 않는 결제내역입니다."),
-  INVALID_PAYMENT_METHOD(HttpStatus.BAD_REQUEST,"유효하지 않은 결제 방식입니다.");
+  INVALID_PAYMENT_METHOD(HttpStatus.BAD_REQUEST,"유효하지 않은 결제 방식입니다."),
+  PAYMENT_CANCELLATION_FAILED(HttpStatus.BAD_REQUEST,"현재 수정 불가한 결제입니다." ),
+
+  // Address
+  NOT_FOUND_USER_ADDRESS(HttpStatus.NOT_FOUND, "존재하지 않는 주소입니다."),
+  USER_ADDRESS_MISMATCH(HttpStatus.BAD_REQUEST, "해당 유저의 주소가 아닙니다."),
+  ;
 
   private final HttpStatus status;
   private final String message;

@@ -37,7 +37,7 @@ public class PaymentService {
 
         Payment payment = Payment.builder()
             .userId(paymentRequest.getUserId())
-            .orderId(order)
+            .order(order)
             .paymentMethod(paymentRequest.getPaymentMethod())
             .totalAmount(paymentRequest.getTotalAmount())
             .paymentDate(LocalDateTime.now())
@@ -73,7 +73,7 @@ public class PaymentService {
         payment.setState(PaymentState.CANCELLED);
         payment.setInvisible();
         payment.delete("1L");
-        payment.getOrderId().setState(OrderStatus.CANCELLED);
+        payment.getOrder().setState(OrderStatus.CANCELLED);
         paymentRepository.save(payment);
         return PaymentResponseDto.fromEntity(payment);
     }

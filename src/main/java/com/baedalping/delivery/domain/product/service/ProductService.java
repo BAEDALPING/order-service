@@ -1,11 +1,11 @@
 package com.baedalping.delivery.domain.product.service;
 
 
-import com.baedalping.delivery.domain.product.dto.ProductUpdateRequestDto;
-import com.baedalping.delivery.domain.product.dto.ProductUpdateResponseDto;
+import com.baedalping.delivery.domain.product.dto.ProductRequestDto;
+import com.baedalping.delivery.domain.product.dto.ProductResponseDto;
 import com.baedalping.delivery.domain.product.entity.Product;
-import com.baedalping.delivery.domain.product.dto.ProductCreateRequestDto;
-import com.baedalping.delivery.domain.product.dto.ProductCreateResponseDto;
+import com.baedalping.delivery.domain.product.dto.ProductRequestDto;
+import com.baedalping.delivery.domain.product.dto.ProductResponseDto;
 import com.baedalping.delivery.domain.product.productCategory.service.ProductCategoryService;
 import com.baedalping.delivery.domain.product.repository.ProductRepository;
 import com.baedalping.delivery.domain.store.service.StoreService;
@@ -14,8 +14,14 @@ import com.baedalping.delivery.global.common.exception.ErrorCode;
 import com.baedalping.delivery.domain.product.productCategory.entity.ProductCategory;
 import com.baedalping.delivery.domain.store.entity.Store;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,21 +33,21 @@ public class ProductService {
   private final StoreService storeService;
 
   @Transactional
-  public ProductCreateResponseDto createProduct(ProductCreateRequestDto productCreateRequestDto) {
-    ProductCategory productCategory = productCategoryService.findById(productCreateRequestDto.getProductCategoryId());
-    Store store = storeService.findById(productCreateRequestDto.getStoreId());
-    Product product = productRepository.save(new Product(productCreateRequestDto, productCategory, store));
-    return new ProductCreateResponseDto(product);
+  public ProductResponseDto createProduct(ProductRequestDto ProductRequestDto) {
+    ProductCategory productCategory = productCategoryService.findById(ProductRequestDto.getProductCategoryId());
+    Store store = storeService.findById(ProductRequestDto.getStoreId());
+    Product product = productRepository.save(new Product(ProductRequestDto, productCategory, store));
+    return new ProductResponseDto(product);
   }
 
   @Transactional
-  public ProductUpdateResponseDto updateProduct(UUID productId, ProductUpdateRequestDto productUpdateRequestDto) {
+  public ProductResponseDto updateProduct(UUID productId, ProductRequestDto ProductRequestDto) {
     Product product = findById(productId);
-    ProductCategory productCategory = productCategoryService.findById(productUpdateRequestDto.getProductCategoryId());
-    Store store = storeService.findById(productUpdateRequestDto.getStoreId());
+    ProductCategory productCategory = productCategoryService.findById(ProductRequestDto.getProductCategoryId());
+    Store store = storeService.findById(ProductRequestDto.getStoreId());
 
-    product.updateProduct(productUpdateRequestDto, productCategory, store);
-    return new ProductUpdateResponseDto(product);
+    product.updateProduct(ProductRequestDto, productCategory, store);
+    return new ProductResponseDto(product);
   }
 
   @Transactional
@@ -49,9 +55,43 @@ public class ProductService {
     findById(productId).delete(null);
   }
 
+  @Transactional
+  public ProductResponseDto getProduct(UUID productId) {
+    return new ProductResponseDto(findById(productId));
+  }
+
+  @Transactional
+  public Page<ProductResponseDto> getProducts(int page, int size, String sortBy, boolean isAsc) {
+    Sort.Direction direction = isAsc ? Sort.Direction.ASC : Sort.Direction.DESC;
+    Sort sort = Sort.by(direction, sortBy);
+    Pageable pageable = PageRequest.of(page, size, sort);
+
+    Page<Product> productList = productRepository.findAllByOrderByCreatedAtAscUpdatedAtAsc(pageable);
+    return productList.map(ProductResponseDto::new);
+  }
+
+  @Transactional
+  public List<ProductResponseDto> getProductByStoreId(UUID storeId) {
+    Store store = storeService.findById(storeId);
+    List<Product> productList = productRepository.findAllByStore(store);
+
+    return productList.stream()
+        .map(ProductResponseDto::new)
+        .collect(Collectors.toList());
+  }
+
+  @Transactional
+  public List<ProductResponseDto> getProductSearch(String keyword) {
+    List<Product> productList = productRepository.findAllByProductNameContaining(keyword);
+    return productList.stream()
+        .map(ProductResponseDto::new)
+        .collect(Collectors.toList());
+  }
+
+
   public Product findById(UUID productId) {
     return productRepository.findById(productId).orElseThrow(
-            () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT)
-        );
+        () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT)
+    );
   }
 }

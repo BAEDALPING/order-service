@@ -9,6 +9,17 @@ import com.baedalping.delivery.domain.order.entity.OrderDetail;
 import com.baedalping.delivery.domain.order.entity.OrderStatus;
 import com.baedalping.delivery.domain.order.entity.OrderType;
 import com.baedalping.delivery.domain.order.repository.OrderRepository;
+import com.baedalping.delivery.domain.payment.entity.Payment;
+import com.baedalping.delivery.domain.payment.entity.PaymentState;
+import com.baedalping.delivery.domain.payment.service.PaymentService;
+import com.baedalping.delivery.domain.product.entity.Product;
+import com.baedalping.delivery.domain.product.repository.ProductRepository;
+import com.baedalping.delivery.domain.store.entity.Store;
+import com.baedalping.delivery.domain.store.repository.StoreRepository;
+import com.baedalping.delivery.domain.user.entity.User;
+import com.baedalping.delivery.domain.user.entity.UserAddress;
+import com.baedalping.delivery.domain.user.repository.UserAddressRepository;
+import com.baedalping.delivery.domain.user.repository.UserRepository;
 import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
 import com.baedalping.delivery.global.common.exception.ErrorCode;
 import java.time.Duration;
@@ -33,63 +44,68 @@ public class OrderService {
     private final OrderDetailService orderDetailService;
     private final CartService cartService;
     private final OrderMapperService orderMapperService;
+    private final ProductRepository productRepository;
+    private final StoreRepository storeRepository;
+    private final UserRepository userRepository;
+    private final UserAddressRepository userAddressRepository;
+    private final PaymentService paymentService; // 결제 서비스 추가
 
-
-    // Authentication 적용 전 임시 userId
-    private final Long userId = 1L;
 
     @Transactional
-    public OrderCreateResponseDto createOrder(UUID addressID, OrderType orderType) {
-        Map<String, Integer> orderDetailList = fetchCartItems(); // 장바구니 내용물 가져오기
-        Order order = buildOrder(orderDetailList, addressID, orderType); // Order 엔티티 생성
-        saveOrder(order); // Order 저장
+    public OrderCreateResponseDto createOrder(Long userId, UUID addressID, OrderType orderType) {
+        validateAddress(userId, addressID);
 
-        List<OrderDetail> orderDetails = createAndSaveOrderDetails(order,
-            orderDetailList); // OrderDetail 엔티티 생성 및 저장
-        List<OrderDetailResponseDto> orderDetailResponseDtos = orderMapperService.convertList(
-            orderDetails, OrderDetailResponseDto.class); // 매핑 메서드 사용
+        Map<String, Integer> orderDetailList = fetchCartItems(userId);
+        Order order = buildOrder(orderDetailList, userId, addressID, orderType);
+        saveOrder(order);
 
-        clearCart(); // 장바구니 비우기
+        List<OrderDetail> orderDetails = createAndSaveOrderDetails(order, orderDetailList);
+        List<OrderDetailResponseDto> orderDetailResponseDtos = orderMapperService.convertList(orderDetails, OrderDetailResponseDto.class);
+
+        clearCart(userId);
 
         return orderMapperService.convert(order, OrderCreateResponseDto.class)
-            .setOrderDetails(orderDetailResponseDtos); // OrderCreateResponseDto 반환
+            .setOrderDetails(orderDetailResponseDtos);
     }
 
     @Transactional(readOnly = true)
-    public Page<OrderGetResponseDto> getOrdersByStoreId(
-        UUID storeId, int page, int size, String sortDirection
-    ) {
+    public Page<OrderGetResponseDto> getOrdersByStoreId(UUID storeId, int page, int size, String sortDirection) {
         Sort sort = createSort(sortDirection);
-
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Order> orders = orderRepository.findByStoreIdAndIsPublicTrue(storeId, pageable);
+        Page<Order> orders = orderRepository.findByStore_StoreIdAndIsPublicTrue(storeId, pageable);
         return orderMapperService.convertPage(orders, OrderGetResponseDto.class);
     }
 
     @Transactional(readOnly = true)
-    public Page<OrderGetResponseDto> getOrdersByUserId(
-        Long userId, int page, int size, String sortDirection
-    ) {
+    public Page<OrderGetResponseDto> getOrdersByUserId(Long userId, int page, int size, String sortDirection) {
         Sort sort = createSort(sortDirection);
-
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Order> orders = orderRepository.findByUserIdAndIsPublicTrue(userId, pageable);
+        Page<Order> orders = orderRepository.findByUser_UserIdAndIsPublicTrue(userId, pageable);
         return orderMapperService.convertPage(orders, OrderGetResponseDto.class);
     }
 
     @Transactional(readOnly = true)
-    public OrderGetResponseDto getOrderById(UUID orderId) {
+    public OrderGetResponseDto getOrderById(UUID orderId, Long userId) {
         Order order = orderRepository.findById(orderId)
             .orElseThrow(() -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_ORDER));
+
+        if (!order.getUser().getUserId().equals(userId)) {
+            throw new DeliveryApplicationException(ErrorCode.ORDER_PERMISSION_DENIED);
+        }
+
         return orderMapperService.convert(order, OrderGetResponseDto.class);
     }
 
-    private void validateAddress(UUID addressID) {
-        // TODO: 검증된 userId를 통해 addressId 체크
+    private void validateAddress(Long userId, UUID addressID) {
+        UserAddress address = userAddressRepository.findById(addressID)
+            .orElseThrow(() -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_USER_ADDRESS));
+
+        if (!address.getUser().getUserId().equals(userId)) {
+            throw new DeliveryApplicationException(ErrorCode.USER_ADDRESS_MISMATCH);
+        }
     }
 
-    private Map<String, Integer> fetchCartItems() {
-        // 장바구니 내용물 가져오기
+    private Map<String, Integer> fetchCartItems(Long userId) {
         Map<String, Integer> orderDetailList = cartService.getCartProducts(userId);
         if (orderDetailList.isEmpty()) {
             throw new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT_IN_CART);
@@ -97,44 +113,42 @@ public class OrderService {
         return orderDetailList;
     }
 
-    private Order buildOrder(Map<String, Integer> orderDetailList, UUID addressID, OrderType orderType) {
+    private Order buildOrder(Map<String, Integer> orderDetailList, Long userId, UUID addressID, OrderType orderType) {
         return Order.builder()
             .orderDate(LocalDateTime.now())
-            .userId(userId)
+            .user(getUser(userId))
             .orderType(orderType)
-            .storeId(extractStoreId(orderDetailList))  // 장바구니에서 storeId 추출하는 메서드
+            .store(extractStoreId(orderDetailList))
             .state(OrderStatus.PENDING)
-            .totalQuantity(calculateTotalQuantity(orderDetailList))  // 총 수량 계산하는 메서드
-            .totalPrice(calculateTotalPrice(orderDetailList))  // 총 가격 계산하는 메서드
-            .shippingAddress(getAddressById(addressID))  // 주소 ID로 주소를 가져오는 메서드
+            .totalQuantity(calculateTotalQuantity(orderDetailList))
+            .totalPrice(calculateTotalPrice(orderDetailList))
+            .shippingAddress(getAddressById(addressID))
             .isPublic(true)
             .build();
     }
 
     private void saveOrder(Order order) {
-        // Order 엔티티 저장
         orderRepository.save(order);
     }
 
-    private List<OrderDetail> createAndSaveOrderDetails(Order order,
-        Map<String, Integer> orderDetailList) {
+    private List<OrderDetail> createAndSaveOrderDetails(Order order, Map<String, Integer> orderDetailList) {
         List<OrderDetail> orderDetails = createOrderDetails(order, orderDetailList);
         order.setOrderDetails(orderDetails);
         orderDetailService.saveOrderDetails(orderDetails);
         return orderDetails;
     }
 
-
-    private void clearCart() {
+    private void clearCart(Long userId) {
         cartService.clearCart(String.valueOf(userId));
     }
 
-
-    private UUID extractStoreId(Map<String, Integer> orderDetailList) {
-        // 장바구니의 첫 번째 상품에서 storeId 추출 (예시)
+    private Store extractStoreId(Map<String, Integer> orderDetailList) {
         String firstKey = orderDetailList.keySet().iterator().next();
         String storeIdStr = firstKey.split(":")[0];
-        return UUID.fromString(storeIdStr);
+
+        return storeRepository.findById(UUID.fromString(storeIdStr)).orElseThrow(
+            () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE)
+        );
     }
 
     private int calculateTotalQuantity(Map<String, Integer> orderDetailList) {
@@ -142,38 +156,42 @@ public class OrderService {
     }
 
     private int calculateTotalPrice(Map<String, Integer> orderDetailList) {
-        // TODO: Product와의 연계 이후 실제 가격으로 구현
-        // 총 가격 계산 로직 (예시)
         int totalPrice = 0;
         for (Map.Entry<String, Integer> entry : orderDetailList.entrySet()) {
             int quantity = entry.getValue();
-            // 각 상품의 unitPrice를 가져오는 로직 필요 (예: productService.getProductPrice(productId))
-            int unitPrice = 100;  // 예시로 100으로 설정, 실제로는 제품의 가격을 가져와야 함
+            UUID productId = UUID.fromString(entry.getKey().split(":")[1]);
+
+            Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT));
+            int unitPrice = product.getProductPrice();
             totalPrice += quantity * unitPrice;
         }
         return totalPrice;
     }
 
     private String getAddressById(UUID addressID) {
-        // TODO: 주소 ID로부터 실제 주소 문자열을 가져오는 로직 (예시)
-        return "Example Address";
+        UserAddress address = userAddressRepository.findById(addressID).orElseThrow(
+            () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_USER_ADDRESS)
+        );
+        return address.getAddress();
     }
 
-    private List<OrderDetail> createOrderDetails(Order order,
-        Map<String, Integer> orderDetailList) {
+    private List<OrderDetail> createOrderDetails(Order order, Map<String, Integer> orderDetailList) {
         List<OrderDetail> orderDetails = new ArrayList<>();
 
         for (Map.Entry<String, Integer> entry : orderDetailList.entrySet()) {
             String[] keys = entry.getKey().split(":");
             UUID productId = UUID.fromString(keys[1]);
-            String productName = "Example Product Name";  // TODO: 실제 제품명을 가져오는 로직 필요
+
+            Product product = fetchProductById(productId);
+            String productName = product.getProductName();
             int quantity = entry.getValue();
-            int unitPrice = 100;  //TODO: 실제 가격을 가져오는 로직 필요
+            int unitPrice = product.getProductPrice();
             int subtotal = quantity * unitPrice;
 
             OrderDetail orderDetail = OrderDetail.builder()
                 .order(order)
-                .productId(productId)
+                .product(product)
                 .productName(productName)
                 .quantity(quantity)
                 .unitPrice(unitPrice)
@@ -186,47 +204,59 @@ public class OrderService {
         return orderDetails;
     }
 
-    private Sort createSort(String sortDirection) {
-        Sort.Direction direction = Sort.Direction.fromString(sortDirection); // "asc" or "desc"
-        return Sort.by(
-            new Sort.Order(direction, "createdAt"),
-            new Sort.Order(direction, "updatedAt")
+    private Product fetchProductById(UUID productId) {
+        return productRepository.findById(productId).orElseThrow(
+            () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT)
         );
     }
 
-//    public OrderCreateResponseDto getOrderById(UUID orderId) {
-//        Order order = orderRepository.findById(orderId)
-//            .orElseThrow(() -> new IllegalArgumentException("Order not found"));
-//        return convertToOrderDTO(order);
-//    }
+    private Sort createSort(String sortDirection) {
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        return Sort.by(new Sort.Order(direction, "createdAt"), new Sort.Order(direction, "updatedAt"));
+    }
 
-    //    public List<Order> getOrdersByStoreId(UUID storeId) {
-//        return null;
-//    }
-//
-//    public List<Order> getOrdersByUserId(Long userId) {
-//        return null;
-//    }
-//
-//    public List<Order> searchOrders(String keyword) {
-//        return null;
-//    }
-//
-//
+    public Page<OrderGetResponseDto> searchOrdersByKeyword(String keyword, int page, int size, String sortDirection) {
+        Sort sort = createSort(sortDirection);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return orderMapperService.convertPage(orderRepository.findOrdersByKeyword(keyword, pageable), OrderGetResponseDto.class);
+    }
+
+    public User getUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+            () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_USER)
+        );
+    }
+
     @Transactional
-    public OrderGetResponseDto cancelOrder(UUID orderId) {
+    public OrderGetResponseDto cancelOrder(UUID orderId, Long userId) {
         Order order = orderRepository.findById(orderId)
             .orElseThrow(() -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_ORDER));
 
-        // 주문 생성 후 5분 이내에만 취소 가능하도록 체크
+        if (!order.getUser().getUserId().equals(userId)) {
+            throw new DeliveryApplicationException(ErrorCode.ORDER_PERMISSION_DENIED);
+        }
+
         LocalDateTime now = LocalDateTime.now();
         if (Duration.between(order.getOrderDate(), now).toMinutes() > 5) {
             throw new DeliveryApplicationException(ErrorCode.CANNOT_CANCEL_ORDER_AFTER_5_MINUTES);
         }
 
-        // 취소된 주문도 고객이 볼 수 있을것인가? (IsPublic을 false로 전환해야 하는가)
+        // 결제 취소 처리
+        Payment payment = order.getPayment();
+        if (payment != null && payment.getState() == PaymentState.COMPLETE) {
+            boolean paymentCancelled = paymentService.cancelPayment(payment.getPaymentId())
+                .getIsPublic();
+            if (!paymentCancelled) {
+                throw new DeliveryApplicationException(ErrorCode.PAYMENT_CANCELLATION_FAILED);
+            }
+            payment.setState(PaymentState.CANCELLED);
+        }
+
+        // 주문 취소 처리
         order.setState(OrderStatus.CANCELLED);
         orderRepository.save(order);
         return orderMapperService.convert(order, OrderGetResponseDto.class);
     }
 }
+
+

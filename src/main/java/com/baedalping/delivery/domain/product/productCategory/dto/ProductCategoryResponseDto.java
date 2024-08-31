@@ -7,11 +7,11 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ProductCategoryUpdateResponseDto {
+public class ProductCategoryResponseDto {
   private UUID productCategoryId;
   private String productCategoryName;
 
-  public ProductCategoryUpdateResponseDto(ProductCategory productCategory){
+  public ProductCategoryResponseDto(ProductCategory productCategory){
     this.productCategoryId = productCategory.getProductCategoryId();
     this.productCategoryName = productCategory.getProductCategoryName();
   }
