@@ -33,14 +33,17 @@ public enum ErrorCode {
   // Order
   NOT_FOUND_ORDER(HttpStatus.NOT_FOUND, "존재하지 않는 주문입니다."),
   CANNOT_CANCEL_ORDER_AFTER_5_MINUTES(HttpStatus.FORBIDDEN,"주문은 5분 이내에만 취소 가능합니다." ),
+  ORDER_PERMISSION_DENIED(HttpStatus.UNAUTHORIZED, "해당 주문에 대한 권한이 없습니다." ),
 
   // Payment
   NOT_FOUND_PAYMENT(HttpStatus.NOT_FOUND, "존재하지 않는 결제내역입니다."),
   INVALID_PAYMENT_METHOD(HttpStatus.BAD_REQUEST,"유효하지 않은 결제 방식입니다."),
+  PAYMENT_CANCELLATION_FAILED(HttpStatus.BAD_REQUEST,"현재 수정 불가한 결제입니다." ),
 
   // Address
   NOT_FOUND_USER_ADDRESS(HttpStatus.NOT_FOUND, "존재하지 않는 주소입니다."),
-  USER_ADDRESS_MISMATCH(HttpStatus.BAD_REQUEST, "해당 유저의 주소가 아닙니다.");
+  USER_ADDRESS_MISMATCH(HttpStatus.BAD_REQUEST, "해당 유저의 주소가 아닙니다."),
+  ;
 
   private final HttpStatus status;
   private final String message;

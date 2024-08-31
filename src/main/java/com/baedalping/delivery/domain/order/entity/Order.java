@@ -1,5 +1,6 @@
 package com.baedalping.delivery.domain.order.entity;
 
+import com.baedalping.delivery.domain.payment.entity.Payment;
 import com.baedalping.delivery.domain.store.entity.Store;
 import com.baedalping.delivery.domain.user.entity.User;
 import com.baedalping.delivery.global.common.AuditField;
@@ -15,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -47,6 +49,10 @@ public class Order extends AuditField {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id", nullable = false, columnDefinition = "UUID") // JoinColumn을 통해 외래 키 설정
     private Store store;
+
+    @Setter
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Payment payment; // Payment와의 One-to-One 관계 설정
 
     @Setter
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)

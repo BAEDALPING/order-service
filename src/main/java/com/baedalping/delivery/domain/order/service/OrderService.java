@@ -9,6 +9,9 @@ import com.baedalping.delivery.domain.order.entity.OrderDetail;
 import com.baedalping.delivery.domain.order.entity.OrderStatus;
 import com.baedalping.delivery.domain.order.entity.OrderType;
 import com.baedalping.delivery.domain.order.repository.OrderRepository;
+import com.baedalping.delivery.domain.payment.entity.Payment;
+import com.baedalping.delivery.domain.payment.entity.PaymentState;
+import com.baedalping.delivery.domain.payment.service.PaymentService;
 import com.baedalping.delivery.domain.product.entity.Product;
 import com.baedalping.delivery.domain.product.repository.ProductRepository;
 import com.baedalping.delivery.domain.store.entity.Store;
@@ -45,10 +48,11 @@ public class OrderService {
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
     private final UserAddressRepository userAddressRepository;
+    private final PaymentService paymentService; // 결제 서비스 추가
+
 
     @Transactional
     public OrderCreateResponseDto createOrder(Long userId, UUID addressID, OrderType orderType) {
-        // 1. 주소와 사용자 검증
         validateAddress(userId, addressID);
 
         Map<String, Integer> orderDetailList = fetchCartItems(userId);
@@ -72,7 +76,6 @@ public class OrderService {
         return orderMapperService.convertPage(orders, OrderGetResponseDto.class);
     }
 
-    // 2. 사용자 주문 조회 메서드
     @Transactional(readOnly = true)
     public Page<OrderGetResponseDto> getOrdersByUserId(Long userId, int page, int size, String sortDirection) {
         Sort sort = createSort(sortDirection);
@@ -81,15 +84,13 @@ public class OrderService {
         return orderMapperService.convertPage(orders, OrderGetResponseDto.class);
     }
 
-    // 3. 단일 주문 조회 메서드
     @Transactional(readOnly = true)
     public OrderGetResponseDto getOrderById(UUID orderId, Long userId) {
         Order order = orderRepository.findById(orderId)
             .orElseThrow(() -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_ORDER));
 
-        // 사용자가 해당 주문의 소유자인지 확인
         if (!order.getUser().getUserId().equals(userId)) {
-            throw new DeliveryApplicationException(ErrorCode.INVALID_PERMISSION);
+            throw new DeliveryApplicationException(ErrorCode.ORDER_PERMISSION_DENIED);
         }
 
         return orderMapperService.convert(order, OrderGetResponseDto.class);
@@ -232,7 +233,7 @@ public class OrderService {
             .orElseThrow(() -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_ORDER));
 
         if (!order.getUser().getUserId().equals(userId)) {
-            throw new DeliveryApplicationException(ErrorCode.INVALID_PERMISSION);
+            throw new DeliveryApplicationException(ErrorCode.ORDER_PERMISSION_DENIED);
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -240,9 +241,22 @@ public class OrderService {
             throw new DeliveryApplicationException(ErrorCode.CANNOT_CANCEL_ORDER_AFTER_5_MINUTES);
         }
 
+        // 결제 취소 처리
+        Payment payment = order.getPayment();
+        if (payment != null && payment.getState() == PaymentState.COMPLETE) {
+            boolean paymentCancelled = paymentService.cancelPayment(payment.getPaymentId())
+                .getIsPublic();
+            if (!paymentCancelled) {
+                throw new DeliveryApplicationException(ErrorCode.PAYMENT_CANCELLATION_FAILED);
+            }
+            payment.setState(PaymentState.CANCELLED);
+        }
+
+        // 주문 취소 처리
         order.setState(OrderStatus.CANCELLED);
         orderRepository.save(order);
         return orderMapperService.convert(order, OrderGetResponseDto.class);
     }
 }
+
 
