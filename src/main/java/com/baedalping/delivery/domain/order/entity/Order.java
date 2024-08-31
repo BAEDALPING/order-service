@@ -1,6 +1,7 @@
 package com.baedalping.delivery.domain.order.entity;
 
 import com.baedalping.delivery.domain.payment.entity.Payment;
+import com.baedalping.delivery.domain.review.entity.Review;
 import com.baedalping.delivery.domain.store.entity.Store;
 import com.baedalping.delivery.domain.user.entity.User;
 import com.baedalping.delivery.global.common.AuditField;
@@ -53,6 +54,10 @@ public class Order extends AuditField {
     @Setter
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Payment payment; // Payment와의 One-to-One 관계 설정
+
+    @Setter
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Review review;
 
     @Setter
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
