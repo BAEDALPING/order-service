@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class StoreCreateResponseDto {
+public class StoreResponseDto {
   private UUID storeId;
   private String storeName;
   private String storePhone;
@@ -19,7 +19,7 @@ public class StoreCreateResponseDto {
   private UUID storeCategoryId;
 
 
-  public StoreCreateResponseDto(Store store){
+  public StoreResponseDto(Store store){
     this.storeId = store.getStoreId();
     this.storeName = store.getStoreName();
     this.storePhone = store.getStorePhone();

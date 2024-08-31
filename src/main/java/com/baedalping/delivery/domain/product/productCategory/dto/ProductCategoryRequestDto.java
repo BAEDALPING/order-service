@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
-public class ProductCategoryCreateRequestDto {
+public class ProductCategoryRequestDto {
   @NotBlank(message = "상품 분류명을 입력해주세요.")
   private String productCategoryName;
 }

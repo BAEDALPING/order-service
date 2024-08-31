@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ProductCreateRequestDto {
+public class ProductRequestDto {
   @NotBlank(message = "상품명을 입력해주세요.")
   private String productName;
   @NotNull
