@@ -1,7 +1,7 @@
 package com.baedalping.delivery.domain.user.service;
 
 import com.baedalping.delivery.domain.user.dto.response.UserAddressResponseDto;
-import com.baedalping.delivery.domain.user.dto.response.UserCreateResponseDto;
+import com.baedalping.delivery.domain.auth.dto.UserCreateResponseDto;
 import com.baedalping.delivery.domain.user.dto.response.UserReadResponseDto;
 import com.baedalping.delivery.domain.user.dto.response.UserUpdateResponseDto;
 import com.baedalping.delivery.domain.user.entity.User;
