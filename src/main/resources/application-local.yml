@@ -1,6 +1,6 @@
 spring:
   application:
-    name: delivery
+    name: order-service
   datasource:
     url: ${DATASOURCE_URL}
     username: ${DATASOURCE_USERNAME}
@@ -25,3 +25,11 @@ logging:
 jwt:
   secret-key: ${JWT_SECRET}
   access-time: 3600000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:19090/eureka/
+
+server:
+  port: 18081
