@@ -6,6 +6,10 @@ import com.baedalping.delivery.domain.order.dto.OrderGetResponseDto;
 import com.baedalping.delivery.domain.order.service.OrderService;
 import com.baedalping.delivery.global.common.ApiResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -78,10 +82,10 @@ public class OrderController {
     // 주문 키워드 검색
     @GetMapping("/search")
     public ApiResponse<Page<OrderGetResponseDto>> searchOrders(
-        @RequestParam String keyword,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size,
-        @RequestParam(defaultValue = "asc") String sortDirection) {
+        @RequestParam @NotBlank String keyword,
+        @RequestParam(defaultValue = "0") @Min(0) int page,
+        @RequestParam(defaultValue = "10") @Min(1) @Max(50) int size,
+        @RequestParam(defaultValue = "asc") @Pattern(regexp = "asc|desc") String sortDirection) {
         return ApiResponse.ok(
             orderService.searchOrdersByKeyword(keyword, page, size, sortDirection));
     }
