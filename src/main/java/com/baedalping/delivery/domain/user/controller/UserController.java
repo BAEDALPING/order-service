@@ -2,10 +2,8 @@ package com.baedalping.delivery.domain.user.controller;
 
 import com.baedalping.delivery.domain.user.dto.request.UserAddressCreateRequestDto;
 import com.baedalping.delivery.domain.user.dto.request.UserAddressUpdateRequestDto;
-import com.baedalping.delivery.domain.user.dto.request.UserCreateRequestDto;
 import com.baedalping.delivery.domain.user.dto.request.UserUpdateRequestDto;
 import com.baedalping.delivery.domain.user.dto.response.UserAddressResponseDto;
-import com.baedalping.delivery.domain.user.dto.response.UserCreateResponseDto;
 import com.baedalping.delivery.domain.user.dto.response.UserReadResponseDto;
 import com.baedalping.delivery.domain.user.dto.response.UserUpdateResponseDto;
 import com.baedalping.delivery.domain.user.service.UserService;
@@ -28,13 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/users")
 public class UserController {
   private final UserService userService;
-
-  @PostMapping
-  public ApiResponse<UserCreateResponseDto> create(
-      @RequestBody @Validated UserCreateRequestDto requestDto) {
-    return ApiResponse.created(
-        userService.create(requestDto.username(), requestDto.password(), requestDto.email()));
-  }
 
   @GetMapping("/{userId}")
   public ApiResponse<UserReadResponseDto> get(@PathVariable("userId") Long userId) {
