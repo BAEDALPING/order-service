@@ -1,5 +1,6 @@
 package com.baedalping.delivery.domain.user.controller;
 
+import com.baedalping.delivery.domain.user.dto.UserDetailsImpl;
 import com.baedalping.delivery.domain.user.dto.request.UserAddressCreateRequestDto;
 import com.baedalping.delivery.domain.user.dto.request.UserAddressUpdateRequestDto;
 import com.baedalping.delivery.domain.user.dto.request.UserUpdateRequestDto;
@@ -11,6 +12,7 @@ import com.baedalping.delivery.global.common.ApiResponse;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,11 +37,11 @@ public class UserController {
 
   @PutMapping
   public ApiResponse<UserUpdateResponseDto> update(
+      @AuthenticationPrincipal UserDetailsImpl userDto,
       @RequestBody @Validated UserUpdateRequestDto requestDto) {
-    Long userId = 1L; // TODO :: spring security 적용 이후 principle로 userId 검증 추가
     return ApiResponse.ok(
         userService.updateUserInfo(
-            userId, requestDto.username(), requestDto.password(), requestDto.email()));
+            userDto.getUserId(), requestDto.username(), requestDto.password(), requestDto.email()));
   }
 
   @DeleteMapping("/{userId}")

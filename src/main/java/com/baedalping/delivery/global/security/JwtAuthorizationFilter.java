@@ -1,7 +1,5 @@
 package com.baedalping.delivery.global.security;
 
-import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
-import com.baedalping.delivery.global.common.exception.ErrorCode;
 import com.baedalping.delivery.global.utils.JwtTokenUtils;
 import com.baedalping.delivery.global.utils.UserDetailServiceImpl;
 import jakarta.servlet.FilterChain;
@@ -9,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +22,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
   private final JwtTokenUtils utils;
   private final UserDetailServiceImpl userDetailService;
+  private static final List<String> PERMIT_URLS = List.of("/", "/auth/login");
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    return PERMIT_URLS.stream()
+        .anyMatch(exclude -> exclude.equalsIgnoreCase(request.getServletPath()));
+  }
 
   @Override
   protected void doFilterInternal(
