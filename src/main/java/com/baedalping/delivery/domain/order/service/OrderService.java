@@ -9,6 +9,12 @@ import com.baedalping.delivery.domain.order.entity.OrderDetail;
 import com.baedalping.delivery.domain.order.entity.OrderStatus;
 import com.baedalping.delivery.domain.order.entity.OrderType;
 import com.baedalping.delivery.domain.order.repository.OrderRepository;
+import com.baedalping.delivery.domain.product.entity.Product;
+import com.baedalping.delivery.domain.product.repository.ProductRepository;
+import com.baedalping.delivery.domain.store.entity.Store;
+import com.baedalping.delivery.domain.store.repository.StoreRepository;
+import com.baedalping.delivery.domain.user.entity.User;
+import com.baedalping.delivery.domain.user.repository.UserRepository;
 import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
 import com.baedalping.delivery.global.common.exception.ErrorCode;
 import java.time.Duration;
@@ -33,10 +39,14 @@ public class OrderService {
     private final OrderDetailService orderDetailService;
     private final CartService cartService;
     private final OrderMapperService orderMapperService;
+    private final ProductRepository productRepository;
+    private final StoreRepository storeRepository;
+    private final UserRepository userRepository;
 
 
     // Authentication 적용 전 임시 userId
     private final Long userId = 1L;
+
 
     @Transactional
     public OrderCreateResponseDto createOrder(UUID addressID, OrderType orderType) {
@@ -62,7 +72,7 @@ public class OrderService {
         Sort sort = createSort(sortDirection);
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Order> orders = orderRepository.findByStoreIdAndIsPublicTrue(storeId, pageable);
+        Page<Order> orders = orderRepository.findByStore_StoreIdAndIsPublicTrue(storeId, pageable);
         return orderMapperService.convertPage(orders, OrderGetResponseDto.class);
     }
 
@@ -73,7 +83,7 @@ public class OrderService {
         Sort sort = createSort(sortDirection);
 
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<Order> orders = orderRepository.findByUserIdAndIsPublicTrue(userId, pageable);
+        Page<Order> orders = orderRepository.findByUser_UserIdAndIsPublicTrue(userId, pageable);
         return orderMapperService.convertPage(orders, OrderGetResponseDto.class);
     }
 
@@ -97,12 +107,13 @@ public class OrderService {
         return orderDetailList;
     }
 
-    private Order buildOrder(Map<String, Integer> orderDetailList, UUID addressID, OrderType orderType) {
+    private Order buildOrder(Map<String, Integer> orderDetailList, UUID addressID,
+        OrderType orderType) {
         return Order.builder()
             .orderDate(LocalDateTime.now())
-            .userId(userId)
+            .user(getUser(userId))
             .orderType(orderType)
-            .storeId(extractStoreId(orderDetailList))  // 장바구니에서 storeId 추출하는 메서드
+            .store(extractStoreId(orderDetailList))  // 장바구니에서 storeId 추출하는 메서드
             .state(OrderStatus.PENDING)
             .totalQuantity(calculateTotalQuantity(orderDetailList))  // 총 수량 계산하는 메서드
             .totalPrice(calculateTotalPrice(orderDetailList))  // 총 가격 계산하는 메서드
@@ -130,11 +141,14 @@ public class OrderService {
     }
 
 
-    private UUID extractStoreId(Map<String, Integer> orderDetailList) {
+    private Store extractStoreId(Map<String, Integer> orderDetailList) {
         // 장바구니의 첫 번째 상품에서 storeId 추출 (예시)
         String firstKey = orderDetailList.keySet().iterator().next();
         String storeIdStr = firstKey.split(":")[0];
-        return UUID.fromString(storeIdStr);
+
+        return storeRepository.findById(UUID.fromString(storeIdStr)).orElseThrow(
+            () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE)
+        );
     }
 
     private int calculateTotalQuantity(Map<String, Integer> orderDetailList) {
@@ -166,14 +180,19 @@ public class OrderService {
         for (Map.Entry<String, Integer> entry : orderDetailList.entrySet()) {
             String[] keys = entry.getKey().split(":");
             UUID productId = UUID.fromString(keys[1]);
-            String productName = "Example Product Name";  // TODO: 실제 제품명을 가져오는 로직 필요
+
+            // TODO: 실제 Product 객체를 가져오는 로직 필요
+            Product product = fetchProductById(
+                productId);  // productId를 사용하여 Product 객체를 가져오는 메서드 호출
+
+            String productName = product.getProductName();  // Product 객체에서 제품명 가져오기
             int quantity = entry.getValue();
-            int unitPrice = 100;  //TODO: 실제 가격을 가져오는 로직 필요
+            int unitPrice = product.getProductPrice();  // Product 객체에서 단가 가져오기
             int subtotal = quantity * unitPrice;
 
             OrderDetail orderDetail = OrderDetail.builder()
                 .order(order)
-                .productId(productId)
+                .product(product)  // 변경: Product 객체로 설정
                 .productName(productName)
                 .quantity(quantity)
                 .unitPrice(unitPrice)
@@ -186,11 +205,33 @@ public class OrderService {
         return orderDetails;
     }
 
+    private Product fetchProductById(UUID productId) {
+        return productRepository.findById(productId).orElseThrow(
+            () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT)
+        );
+    }
+
+
     private Sort createSort(String sortDirection) {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection); // "asc" or "desc"
         return Sort.by(
             new Sort.Order(direction, "createdAt"),
             new Sort.Order(direction, "updatedAt")
+        );
+    }
+
+    public Page<OrderGetResponseDto> searchOrdersByKeyword(String keyword,int page, int size, String sortDirection) {
+        // TODO: 연관관계 수정 후 전체 재조정
+        Sort sort = createSort(sortDirection);
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return orderMapperService.convertPage(orderRepository.findOrdersByKeyword(keyword, pageable),
+            OrderGetResponseDto.class);
+    }
+
+    public User getUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+            () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_USER)
         );
     }
 
