@@ -26,7 +26,7 @@ public class PaymentService {
     private final OrderRepository orderRepository;
 
     @Transactional
-    public PaymentResponseDto createPayment(PaymentCreateRequestDto paymentRequest) {
+    public PaymentResponseDto createPayment(PaymentCreateRequestDto paymentRequest, Long userId) {
         if (!"CARD".equals(paymentRequest.getPaymentMethod())) {
             throw new DeliveryApplicationException(ErrorCode.INVALID_PAYMENT_METHOD);
         }
@@ -35,8 +35,13 @@ public class PaymentService {
             () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_ORDER)
         );
 
+        // 사용자 ID가 주문의 사용자 ID와 일치하는지 확인
+        if (!order.getUser().getUserId().equals(userId)) {
+            throw new DeliveryApplicationException(ErrorCode.ORDER_PERMISSION_DENIED);
+        }
+
         Payment payment = Payment.builder()
-            .userId(paymentRequest.getUserId())
+            .userId(userId) // 서비스 메서드에서 받은 사용자 ID 사용
             .order(order)
             .paymentMethod(paymentRequest.getPaymentMethod())
             .totalAmount(paymentRequest.getTotalAmount())
@@ -49,30 +54,39 @@ public class PaymentService {
         order.setState(OrderStatus.CONFIRMED);
         orderRepository.flush();
 
-        // 정적 팩토리 메서드를 사용하여 DTO 생성
-        // TODO: mapper를 이용한 방법 사용해보기 (order의 순환참조로 인해 명시적 지정이 필요하지만 잘 안됨)
         return PaymentResponseDto.fromEntity(savedPayment);
     }
 
     @Transactional(readOnly = true)
-    public PaymentResponseDto getPaymentById(UUID paymentId) {
+    public PaymentResponseDto getPaymentById(UUID paymentId, Long userId) {
         Payment payment = getPayment(paymentId);
+
+        // 사용자 ID가 결제의 사용자 ID와 일치하는지 확인
+        if (!payment.getUserId().equals(userId)) {
+            throw new DeliveryApplicationException(ErrorCode.PAYMENT_PERMISSION_DENIED);
+        }
+
         return PaymentResponseDto.fromEntity(payment);
     }
 
     @Transactional(readOnly = true)
-    public List<PaymentResponseDto> getAllPayments() {
-        List<Payment> payments = paymentRepository.findAll();
+    public List<PaymentResponseDto> getAllPayments(Long userId) {
+        // TODO: 유저 권한에 따라 모든 결제를 조회할 수 있는지 확인
+        List<Payment> payments = paymentRepository.findAllByUserId(userId);
         return PaymentResponseDto.fromEntities(payments);
     }
 
     @Transactional
-    public PaymentResponseDto cancelPayment(UUID paymentId) {
-        // TODO: user 권한 체크
+    public PaymentResponseDto cancelPayment(UUID paymentId, Long userId) {
         Payment payment = getPayment(paymentId);
+
+        // 사용자 ID가 결제의 사용자 ID와 일치하는지 확인
+        if (!payment.getUserId().equals(userId)) {
+            throw new DeliveryApplicationException(ErrorCode.PAYMENT_PERMISSION_DENIED);
+        }
+
         payment.setState(PaymentState.CANCELLED);
         payment.setInvisible();
-        payment.delete("1L");
         payment.getOrder().setState(OrderStatus.CANCELLED);
         paymentRepository.save(payment);
         return PaymentResponseDto.fromEntity(payment);

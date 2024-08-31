@@ -41,6 +41,7 @@ public enum ErrorCode {
   NOT_FOUND_PAYMENT(HttpStatus.NOT_FOUND, "존재하지 않는 결제내역입니다."),
   INVALID_PAYMENT_METHOD(HttpStatus.BAD_REQUEST,"유효하지 않은 결제 방식입니다."),
   PAYMENT_CANCELLATION_FAILED(HttpStatus.BAD_REQUEST,"현재 수정 불가한 결제입니다." ),
+  PAYMENT_PERMISSION_DENIED(HttpStatus.UNAUTHORIZED,"해당 결제에 대한 권한이 없습니다." ),
 
   // Address
   NOT_FOUND_USER_ADDRESS(HttpStatus.NOT_FOUND, "존재하지 않는 주소입니다."),
