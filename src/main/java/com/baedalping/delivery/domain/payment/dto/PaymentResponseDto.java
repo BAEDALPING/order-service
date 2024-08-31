@@ -38,7 +38,7 @@ public class PaymentResponseDto {
         return PaymentResponseDto.builder()
             .paymentId(payment.getPaymentId())
             .userId(payment.getUserId())
-            .orderId(payment.getOrderId().getOrderId())  // Order의 orderId 필드 사용
+            .orderId(payment.getOrder().getOrderId())  // Order의 orderId 필드 사용
             .paymentMethod(payment.getPaymentMethod())
             .cardNumber(null)  // 보안상의 이유로 cardNumber를 null로 설정하거나 마스킹
             .state(payment.getState())
