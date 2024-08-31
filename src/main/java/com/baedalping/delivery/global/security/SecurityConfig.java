@@ -1,6 +1,7 @@
 package com.baedalping.delivery.global.security;
 
 import com.baedalping.delivery.global.utils.JwtTokenUtils;
+import com.baedalping.delivery.global.utils.RedisComponent;
 import com.baedalping.delivery.global.utils.UserDetailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
   private final JwtTokenUtils jwtUtil;
   private final UserDetailServiceImpl userDetailService;
+  private final RedisComponent redisService;
   private final AuthenticationConfiguration authenticationConfiguration;
   private final AuthenticationEntryPoint entryPoint;
 
@@ -33,7 +35,7 @@ public class SecurityConfig {
 
   @Bean
   public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-    JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil);
+    JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, redisService);
     filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
     return filter;
   }
