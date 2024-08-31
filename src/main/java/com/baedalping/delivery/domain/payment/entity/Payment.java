@@ -11,8 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import java.math.BigDecimal;
+import jakarta.persistence.OneToOne;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -36,9 +35,9 @@ public class Payment extends AuditField {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
-    private Order orderId;
+    private Order order; // Order와의 One-to-One 관계 설정
 
     @Column(length = 100)
     private String paymentMethod;
@@ -47,7 +46,7 @@ public class Payment extends AuditField {
     private String cardNumber;
 
     @Setter
-    @Enumerated(EnumType.STRING) // Enum 타입을 문자열로 저장
+    @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private PaymentState state;
 
@@ -62,5 +61,4 @@ public class Payment extends AuditField {
     public void setInvisible() {
         this.isPublic = false;
     }
-
 }
