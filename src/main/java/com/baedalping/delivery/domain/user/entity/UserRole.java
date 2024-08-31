@@ -1,5 +1,6 @@
 package com.baedalping.delivery.domain.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -14,4 +15,9 @@ public enum UserRole {
 
   private long roleNum;
   private String roleName;
+
+  @JsonCreator
+  public static UserRole fromString(String value) {
+    return UserRole.valueOf(value.toUpperCase());
+  }
 }
