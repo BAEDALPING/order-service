@@ -98,7 +98,7 @@ public class UserService {
     return savedAddress;
   }
 
-  private User findByUser(Long userId) {
+  public User findByUser(Long userId) {
     return userRepository
         .findByUserId(userId)
         .orElseThrow(() -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_USER));
