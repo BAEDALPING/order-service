@@ -21,6 +21,7 @@ import com.baedalping.delivery.global.common.exception.DeliveryApplicationExcept
 import com.baedalping.delivery.global.common.exception.ErrorCode;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,14 +47,15 @@ public class OrderService {
     private final UserRepository userRepository;
     private final UserAddressRepository userAddressRepository;
 
-
     @Transactional
     public OrderCreateResponseDto createOrder(Long userId, UUID addressID, OrderType orderType) {
         validateAddress(userId, addressID);
 
         Map<String, Integer> orderDetailList = fetchCartItems(userId);
-        Order order = buildOrder(orderDetailList, userId, addressID, orderType);
-        // TODO: 주문 생성 전 가게 영업시간 체크
+        Store store = extractStore(orderDetailList);
+        validateStoreHours(store);
+
+        Order order = buildOrder(orderDetailList, userId, addressID, orderType, store);
         saveOrder(order);
 
         List<OrderDetail> orderDetails = createAndSaveOrderDetails(order, orderDetailList);
@@ -67,19 +69,15 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public Page<OrderGetResponseDto> getOrdersByStoreId(UUID storeId, int page, int size,
-        String sortDirection) {
-        Sort sort = createSort(sortDirection);
-        Pageable pageable = PageRequest.of(page, size, sort);
+    public Page<OrderGetResponseDto> getOrdersByStoreId(UUID storeId, int page, int size, String sortDirection) {
+        Pageable pageable = createPageRequest(page, size, sortDirection);
         Page<Order> orders = orderRepository.findByStore_StoreIdAndIsPublicTrue(storeId, pageable);
         return orderMapperService.convertPage(orders, OrderGetResponseDto.class);
     }
 
     @Transactional(readOnly = true)
-    public Page<OrderGetResponseDto> getOrdersByUserId(Long userId, int page, int size,
-        String sortDirection) {
-        Sort sort = createSort(sortDirection);
-        Pageable pageable = PageRequest.of(page, size, sort);
+    public Page<OrderGetResponseDto> getOrdersByUserId(Long userId, int page, int size, String sortDirection) {
+        Pageable pageable = createPageRequest(page, size, sortDirection);
         Page<Order> orders = orderRepository.findByUser_UserIdAndIsPublicTrue(userId, pageable);
         return orderMapperService.convertPage(orders, OrderGetResponseDto.class);
     }
@@ -96,12 +94,45 @@ public class OrderService {
         return orderMapperService.convert(order, OrderGetResponseDto.class);
     }
 
+    @Transactional
+    public OrderGetResponseDto cancelOrder(UUID orderId, Long userId) {
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_ORDER));
+
+        validateOrderCancellation(order, userId);
+
+        order.setState(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+        return orderMapperService.convert(order, OrderGetResponseDto.class);
+    }
+
+    private void validateOrderCancellation(Order order, Long userId) {
+        if (!order.getUser().getUserId().equals(userId)) {
+            throw new DeliveryApplicationException(ErrorCode.ORDER_PERMISSION_DENIED);
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        if (Duration.between(order.getOrderDate(), now).toMinutes() > 5) {
+            throw new DeliveryApplicationException(ErrorCode.CANNOT_CANCEL_ORDER_AFTER_5_MINUTES);
+        }
+    }
+
     private void validateAddress(Long userId, UUID addressID) {
         UserAddress address = userAddressRepository.findById(addressID)
             .orElseThrow(() -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_USER_ADDRESS));
 
         if (!address.getUser().getUserId().equals(userId)) {
             throw new DeliveryApplicationException(ErrorCode.USER_ADDRESS_MISMATCH);
+        }
+    }
+
+    private void validateStoreHours(Store store) {
+        LocalTime now = LocalTime.now();  // 현재 시간을 LocalTime으로 가져옵니다.
+        LocalTime openingTime = store.getOpenTime();  // 가게의 영업 시작 시간
+        LocalTime closingTime = store.getCloseTime();  // 가게의 영업 종료 시간
+
+        if (now.isBefore(openingTime) || now.isAfter(closingTime)) {
+            throw new DeliveryApplicationException(ErrorCode.STORE_CLOSED);
         }
     }
 
@@ -113,13 +144,12 @@ public class OrderService {
         return orderDetailList;
     }
 
-    private Order buildOrder(Map<String, Integer> orderDetailList, Long userId, UUID addressID,
-        OrderType orderType) {
+    private Order buildOrder(Map<String, Integer> orderDetailList, Long userId, UUID addressID, OrderType orderType, Store store) {
         return Order.builder()
             .orderDate(LocalDateTime.now())
             .user(getUser(userId))
             .orderType(orderType)
-            .store(extractStoreId(orderDetailList))
+            .store(store)
             .state(OrderStatus.PENDING)
             .totalQuantity(calculateTotalQuantity(orderDetailList))
             .totalPrice(calculateTotalPrice(orderDetailList))
@@ -132,8 +162,7 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    private List<OrderDetail> createAndSaveOrderDetails(Order order,
-        Map<String, Integer> orderDetailList) {
+    private List<OrderDetail> createAndSaveOrderDetails(Order order, Map<String, Integer> orderDetailList) {
         List<OrderDetail> orderDetails = createOrderDetails(order, orderDetailList);
         order.setOrderDetails(orderDetails);
         orderDetailService.saveOrderDetails(orderDetails);
@@ -144,7 +173,7 @@ public class OrderService {
         cartService.clearCart(String.valueOf(userId));
     }
 
-    private Store extractStoreId(Map<String, Integer> orderDetailList) {
+    private Store extractStore(Map<String, Integer> orderDetailList) {
         String firstKey = orderDetailList.keySet().iterator().next();
         String storeIdStr = firstKey.split(":")[0];
 
@@ -178,13 +207,11 @@ public class OrderService {
         return address.getAddress();
     }
 
-    private List<OrderDetail> createOrderDetails(Order order,
-        Map<String, Integer> orderDetailList) {
+    private List<OrderDetail> createOrderDetails(Order order, Map<String, Integer> orderDetailList) {
         List<OrderDetail> orderDetails = new ArrayList<>();
 
         for (Map.Entry<String, Integer> entry : orderDetailList.entrySet()) {
-            String[] keys = entry.getKey().split(":");
-            UUID productId = UUID.fromString(keys[1]);
+            UUID productId = UUID.fromString(entry.getKey().split(":")[1]);
 
             Product product = fetchProductById(productId);
             String productName = product.getProductName();
@@ -213,16 +240,14 @@ public class OrderService {
         );
     }
 
-    private Sort createSort(String sortDirection) {
+    private Pageable createPageRequest(int page, int size, String sortDirection) {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-        return Sort.by(new Sort.Order(direction, "createdAt"),
-            new Sort.Order(direction, "updatedAt"));
+        Sort sort = Sort.by(new Sort.Order(direction, "createdAt"), new Sort.Order(direction, "updatedAt"));
+        return PageRequest.of(page, size, sort);
     }
 
-    public Page<OrderGetResponseDto> searchOrdersByKeyword(String keyword, int page, int size,
-        String sortDirection) {
-        Sort sort = createSort(sortDirection);
-        Pageable pageable = PageRequest.of(page, size, sort);
+    public Page<OrderGetResponseDto> searchOrdersByKeyword(String keyword, int page, int size, String sortDirection) {
+        Pageable pageable = createPageRequest(page, size, sortDirection);
         return orderMapperService.convertPage(
             orderRepository.findOrdersByKeyword(keyword, pageable), OrderGetResponseDto.class);
     }
@@ -231,42 +256,6 @@ public class OrderService {
         return userRepository.findById(userId).orElseThrow(
             () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_USER)
         );
-    }
-
-    @Transactional
-    public OrderGetResponseDto cancelOrder(UUID orderId, Long userId) {
-        Order order = orderRepository.findById(orderId)
-            .orElseThrow(() -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_ORDER));
-
-        if (!order.getUser().getUserId().equals(userId)) {
-            throw new DeliveryApplicationException(ErrorCode.ORDER_PERMISSION_DENIED);
-        }
-
-        LocalDateTime now = LocalDateTime.now();
-        if (Duration.between(order.getOrderDate(), now).toMinutes() > 5) {
-            throw new DeliveryApplicationException(ErrorCode.CANNOT_CANCEL_ORDER_AFTER_5_MINUTES);
-        }
-
-        /*
-         결제 취소 처리 시나리오
-         1. 클라이언트에서 주문 취소 요청
-         2. 주문 취소가 정상적으로 진행 후 외주 결제 모듈로 요청
-         3. 외부 결제 모듈이 정상 처리 된 후 결제 취소 api로 리다이랙팅
-         */
-//        Payment payment = order.getPayment();
-//        if (payment != null && payment.getState() == PaymentState.COMPLETE) {
-//            boolean paymentCancelled = paymentService.cancelPayment(payment.getPaymentId(), userId)
-//                .getIsPublic();
-//            if (!paymentCancelled) {
-//                throw new DeliveryApplicationException(ErrorCode.PAYMENT_CANCELLATION_FAILED);
-//            }
-//            payment.setState(PaymentState.CANCELLED);
-//        }
-
-        // 주문 취소 처리
-        order.setState(OrderStatus.CANCELLED);
-        orderRepository.save(order);
-        return orderMapperService.convert(order, OrderGetResponseDto.class);
     }
 }
 

@@ -20,6 +20,7 @@ public enum ErrorCode {
   DUPLICATE_STORE_CATEGORY_NAME(HttpStatus.NOT_FOUND, "가게 분류가 중복되었습니다."),
 
   NOT_FOUND_STORE(HttpStatus.NOT_FOUND, "가게를 찾을 수 없습니다."),
+  STORE_CLOSED(HttpStatus.BAD_REQUEST,"가게가 마감되었습니다." ),
 
   NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
   
@@ -49,7 +50,7 @@ public enum ErrorCode {
 
   // Review
   ALREADY_EXISTING_REVIEW(HttpStatus.BAD_REQUEST,"해당 주문에 대한 리뷰가 이미 생성되었습니다." ),
-  NOT_FOUND_REVIEW(HttpStatus.NOT_FOUND,"리뷰를 찾을 수 없습니다.");  // 새로운 에러 코드 추가
+  NOT_FOUND_REVIEW(HttpStatus.NOT_FOUND,"리뷰를 찾을 수 없습니다."), ;  // 새로운 에러 코드 추가
 
 
   private final HttpStatus status;
