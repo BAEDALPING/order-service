@@ -46,7 +46,9 @@ public enum ErrorCode {
   // Address
   NOT_FOUND_USER_ADDRESS(HttpStatus.NOT_FOUND, "존재하지 않는 주소입니다."),
   USER_ADDRESS_MISMATCH(HttpStatus.BAD_REQUEST, "해당 유저의 주소가 아닙니다."),
-  ;
+
+  // Review
+  ALREADY_EXISTING_REVIEW(HttpStatus.BAD_REQUEST,"해당 주문에 대한 리뷰가 이미 생성되었습니다." );
 
   private final HttpStatus status;
   private final String message;
