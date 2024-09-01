@@ -1,5 +1,7 @@
 package com.baedalping.delivery.global.security;
 
+import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
+import com.baedalping.delivery.global.common.exception.ErrorCode;
 import com.baedalping.delivery.global.utils.JwtTokenUtils;
 import com.baedalping.delivery.global.utils.UserDetailServiceImpl;
 import jakarta.servlet.FilterChain;
@@ -14,12 +16,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @RequiredArgsConstructor
-@Slf4j(topic = "JwtAuthorizationFilter")
-public class JwtAuthorizationFilter extends OncePerRequestFilter {
+@Slf4j(topic = "UserAuthorizationFilter")
+public class UserAuthorizationFilter extends OncePerRequestFilter {
   private final JwtTokenUtils utils;
   private final UserDetailServiceImpl userDetailService;
   private static final List<String> PERMIT_URLS = List.of("/", "/auth/login");
@@ -35,22 +36,21 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
     try {
-      String token = utils.resolveToken(request);
+      String email = request.getHeader("requestedUserEmail");
+      log.info("requested User email: {}", email);
+      if (email == null) throw new DeliveryApplicationException(ErrorCode.INVALID_TOKEN);
 
-      if (StringUtils.hasText(token)) {
-        String email = utils.getUserSignature(token);
-        UserDetails userDetails = userDetailService.loadUserByUsername(email);
+      UserDetails userDetails = userDetailService.loadUserByUsername(email);
 
-        UsernamePasswordAuthenticationToken authenticationToken =
-            new UsernamePasswordAuthenticationToken(
-                userDetails, null, userDetails.getAuthorities());
-        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+      UsernamePasswordAuthenticationToken authenticationToken =
+          new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+      authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+      SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-        log.info("Token verification successful. URI: {}", request.getRequestURI());
-      }
+      log.info("User Authorization successful. URI: {}", request.getRequestURI());
+
     } catch (RuntimeException exception) {
-      log.error("occurs exception in JwtAuthorizationFilter");
+      log.error("occurs exception in UserAuthorizationFilter");
       request.setAttribute("exception", exception);
     }
 

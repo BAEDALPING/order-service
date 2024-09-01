@@ -6,7 +6,6 @@ import com.baedalping.delivery.global.utils.UserDetailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -41,8 +40,8 @@ public class SecurityConfig {
   }
 
   @Bean
-  public JwtAuthorizationFilter jwtAuthorizationFilter() {
-    return new JwtAuthorizationFilter(jwtUtil, userDetailService);
+  public UserAuthorizationFilter userAuthorizationFilter() {
+    return new UserAuthorizationFilter(jwtUtil, userDetailService);
   }
 
   @Bean
@@ -58,7 +57,7 @@ public class SecurityConfig {
                     .permitAll()
                     .anyRequest()
                     .authenticated())
-        .addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class)
+        .addFilterBefore(userAuthorizationFilter(), JwtAuthenticationFilter.class)
         .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling(
             (exceptionHandling) -> exceptionHandling.authenticationEntryPoint(entryPoint));
