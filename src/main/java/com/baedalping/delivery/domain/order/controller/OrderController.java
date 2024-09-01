@@ -45,18 +45,7 @@ public class OrderController {
         );
     }
 
-    // 가게 주문 조회
-    @GetMapping("/stores/{storeId}")
-    public ApiResponse<Page<OrderGetResponseDto>> getOrdersByStore(
-        @PathVariable UUID storeId,
-        @RequestParam(defaultValue = "0") @Min(0) int page,
-        @RequestParam(defaultValue = "10") @Min(1) @Max(50) int size,
-        @RequestParam(defaultValue = "asc") @Pattern(regexp = "asc|desc") String sortDirection
-    ) {
-        return ApiResponse.ok(
-            orderService.getOrdersByStoreId(storeId, page, size, sortDirection)
-        );
-    }
+
 
     // 개인 주문 조회
     @GetMapping("/users")
