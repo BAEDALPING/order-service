@@ -5,8 +5,11 @@ import com.baedalping.delivery.domain.order.repository.OrderRepository;
 import com.baedalping.delivery.domain.review.dto.ReviewRequestDto;
 import com.baedalping.delivery.domain.review.entity.Review;
 import com.baedalping.delivery.domain.review.repository.ReviewRepository;
+import com.baedalping.delivery.domain.store.repository.StoreRepository;
+import com.baedalping.delivery.domain.user.repository.UserRepository;
 import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
 import com.baedalping.delivery.global.common.exception.ErrorCode;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,8 +18,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ReviewService {
 
-    private final ReviewRepository reviewRepository;
+    private final StoreRepository storeRepository;
     private final OrderRepository orderRepository;
+    private final ReviewRepository reviewRepository;
 
 
     public Review createReview(ReviewRequestDto reviewRequest, Long userId) {
@@ -49,5 +53,22 @@ public class ReviewService {
         return reviewRepository.save(review);
     }
 
+    public List<Review> getReviewsByStore(UUID storeId) {
+        // 신고된 리뷰 제외하고 조회
+        existStoreId(storeId);
+        return reviewRepository.findByStore_StoreIdAndIsReportedFalse(storeId);
+    }
+
+    public List<Review> getAllReviewsByStore(UUID storeId) {
+        // 관리자용 신고여부 상관없는 전체 조회
+        existStoreId(storeId);
+        return reviewRepository.findByStore_StoreId(storeId);
+    }
+
+    private void existStoreId(UUID storeId) {
+        if (!storeRepository.existsById(storeId)) {
+            throw new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE);
+        }
+    }
 }
 
