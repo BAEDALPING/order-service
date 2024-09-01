@@ -29,10 +29,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
   private final UserService userService;
 
-  @GetMapping("/{userId}")
-  public ApiResponse<UserReadResponseDto> get(@PathVariable("userId") Long userId) {
-    // TODO :: spring security 적용 이후 principle에 있는 userId를 가져올 예정
-    return ApiResponse.ok(userService.get(userId));
+  @GetMapping
+  public ApiResponse<UserReadResponseDto> get(@AuthenticationPrincipal UserDetailsImpl userDto) {
+    return ApiResponse.ok(userService.get(userDto.getUserId()));
   }
 
   @PutMapping
@@ -44,37 +43,37 @@ public class UserController {
             userDto.getUserId(), requestDto.username(), requestDto.password(), requestDto.email()));
   }
 
-  @DeleteMapping("/{userId}")
-  public ApiResponse<UserReadResponseDto> delete(@PathVariable("userId") Long userId) {
-    // TODO :: spring security 적용 이후 principle에 있는 userId를 가져올 예정
-    return ApiResponse.ok(userService.delete(userId));
+  @DeleteMapping
+  public ApiResponse<UserReadResponseDto> delete(@AuthenticationPrincipal UserDetailsImpl userDto) {
+    return ApiResponse.ok(userService.delete(userDto.getUserId()));
   }
 
-  @PostMapping("/address/{userId}")
+  @PostMapping("/address")
   public ApiResponse<UserAddressResponseDto> createAddress(
-      @PathVariable("userId") Long userId,
+      @AuthenticationPrincipal UserDetailsImpl userDto,
       @RequestBody @Validated UserAddressCreateRequestDto requestDto) {
-    // TODO :: spring security 적용 이후 principle에 있는 userId를 가져올 예정
     return ApiResponse.created(
         userService.addAddress(
-            userId, requestDto.address(), requestDto.zipcode(), requestDto.alias()));
+            userDto.getUserId(), requestDto.address(), requestDto.zipcode(), requestDto.alias()));
   }
 
-  @GetMapping("/address/{userId}")
+  @GetMapping("/address")
   public ApiResponse<List<UserAddressResponseDto>> getAddressList(
-      @PathVariable("userId") Long userId) {
-    // TODO :: spring security 적용 이후 principle에 있는 userId를 가져올 예정
-    return ApiResponse.ok(userService.getAddressList(userId));
+      @AuthenticationPrincipal UserDetailsImpl userDto) {
+    return ApiResponse.ok(userService.getAddressList(userDto.getUserId()));
   }
 
-  @PutMapping("/address/{addressId}/{userId}")
+  @PutMapping("/address/{addressId}")
   public ApiResponse<UserAddressResponseDto> updateAddress(
-      // TODO :: spring security 적용 이후 principle에 있는 userId를 가져올 예정
       @PathVariable("addressId") UUID addressId,
-      @PathVariable("userId") Long userId,
+      @AuthenticationPrincipal UserDetailsImpl userDto,
       @RequestBody @Validated UserAddressUpdateRequestDto requestDto) {
     return ApiResponse.ok(
         userService.updateAddress(
-            addressId, userId, requestDto.address(), requestDto.zipcode(), requestDto.alias()));
+            addressId,
+            userDto.getUserId(),
+            requestDto.address(),
+            requestDto.zipcode(),
+            requestDto.alias()));
   }
 }
