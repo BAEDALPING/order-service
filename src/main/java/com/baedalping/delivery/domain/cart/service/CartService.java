@@ -7,6 +7,7 @@ import com.baedalping.delivery.domain.product.entity.Product;
 import com.baedalping.delivery.domain.product.repository.ProductRepository;
 import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
 import com.baedalping.delivery.global.common.exception.ErrorCode;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -26,6 +27,7 @@ public class CartService {
     private final String CART_PREFIX = "cart:"; // Redis 키 앞에 유저 ID를 붙이기 위한 접두사
 
     // 상품 추가
+    @Transactional
     public Map<String, Integer> addProductToCart(String userId, CartRequestDto cartProduct) {
 
         // 검증 서순 변경 가능
@@ -33,7 +35,7 @@ public class CartService {
             () -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_PRODUCT)
         );
 
-        if (product.getStore().getStoreId() != UUID.fromString(cartProduct.getStoreId())){
+        if (!product.getStore().getStoreId().equals(UUID.fromString(cartProduct.getStoreId()))){
             throw new DeliveryApplicationException(ErrorCode.INVALID_PRODUCT_STORE_COMBINATION);
         }
 
