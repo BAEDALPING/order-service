@@ -16,6 +16,8 @@ public class ReviewResponseDto {
     private UUID storeId;
     private Integer rating;
     private String comment;
+    private Boolean isReported;
+    private String reportMessage;
 
     public ReviewResponseDto(Review review) {
         this.reviewId = review.getReviewId();
@@ -24,6 +26,8 @@ public class ReviewResponseDto {
         this.storeId = review.getStore().getStoreId();
         this.rating = review.getRating();
         this.comment = review.getComment();
+        this.isReported = review.getIsReported();
+        this.reportMessage = review.getReportMessage();
     }
 }
 

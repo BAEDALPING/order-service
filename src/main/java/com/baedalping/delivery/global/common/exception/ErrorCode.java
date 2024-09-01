@@ -48,7 +48,9 @@ public enum ErrorCode {
   USER_ADDRESS_MISMATCH(HttpStatus.BAD_REQUEST, "해당 유저의 주소가 아닙니다."),
 
   // Review
-  ALREADY_EXISTING_REVIEW(HttpStatus.BAD_REQUEST,"해당 주문에 대한 리뷰가 이미 생성되었습니다." );
+  ALREADY_EXISTING_REVIEW(HttpStatus.BAD_REQUEST,"해당 주문에 대한 리뷰가 이미 생성되었습니다." ),
+  NOT_FOUND_REVIEW(HttpStatus.NOT_FOUND,"리뷰를 찾을 수 없습니다.");  // 새로운 에러 코드 추가
+
 
   private final HttpStatus status;
   private final String message;
