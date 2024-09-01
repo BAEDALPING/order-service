@@ -2,6 +2,7 @@ package com.baedalping.delivery.domain.review.service;
 
 import com.baedalping.delivery.domain.order.entity.Order;
 import com.baedalping.delivery.domain.order.repository.OrderRepository;
+import com.baedalping.delivery.domain.review.dto.ReportReviewRequestDto;
 import com.baedalping.delivery.domain.review.dto.ReviewRequestDto;
 import com.baedalping.delivery.domain.review.entity.Review;
 import com.baedalping.delivery.domain.review.repository.ReviewRepository;
@@ -65,10 +66,27 @@ public class ReviewService {
         return reviewRepository.findByStore_StoreId(storeId);
     }
 
+    public Review reportReview(UUID reviewId, ReportReviewRequestDto reportRequest, Long userId) {
+        // 리뷰 확인
+        Review review = reviewRepository.findById(reviewId)
+            .orElseThrow(() -> new DeliveryApplicationException(ErrorCode.NOT_FOUND_REVIEW));
+
+        // 사용자 권한 확인 (예: 해당 리뷰 작성자만 신고 가능하도록 할 경우)
+        if (!review.getUser().getUserId().equals(userId)) {
+            throw new DeliveryApplicationException(ErrorCode.INVALID_PERMISSION);
+        }
+
+        // 신고 처리
+        review.setIsReported(true);
+        review.setReportMessage(reportRequest.getReportMessage());
+        return reviewRepository.save(review);  // 저장 후 변경된 리뷰 반환
+    }
+
     private void existStoreId(UUID storeId) {
         if (!storeRepository.existsById(storeId)) {
             throw new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE);
         }
     }
+
 }
 

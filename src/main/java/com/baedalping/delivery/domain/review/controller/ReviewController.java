@@ -1,5 +1,6 @@
 package com.baedalping.delivery.domain.review.controller;
 
+import com.baedalping.delivery.domain.review.dto.ReportReviewRequestDto;
 import com.baedalping.delivery.domain.review.dto.ReviewRequestDto;
 import com.baedalping.delivery.domain.review.dto.ReviewResponseDto;
 import com.baedalping.delivery.domain.review.entity.Review;
@@ -15,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,6 +52,18 @@ public class ReviewController {
             .collect(Collectors.toList());
 
         return ApiResponse.ok(response);
+    }
+
+    // 리뷰 신고 API
+    @PatchMapping("/{reviewId}/report")
+    public ApiResponse<ReviewResponseDto> reportReview(
+        @PathVariable UUID reviewId,
+        @RequestBody @Valid ReportReviewRequestDto reportRequest,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        Long userId = userDetails.getUserId();
+        Review reportedReview = reviewService.reportReview(reviewId, reportRequest, userId);
+        return ApiResponse.ok(new ReviewResponseDto(reportedReview));
     }
 
 }
