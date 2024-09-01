@@ -7,12 +7,15 @@ import com.baedalping.delivery.domain.review.dto.ReviewRequestDto;
 import com.baedalping.delivery.domain.review.entity.Review;
 import com.baedalping.delivery.domain.review.repository.ReviewRepository;
 import com.baedalping.delivery.domain.store.repository.StoreRepository;
-import com.baedalping.delivery.domain.user.repository.UserRepository;
 import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
 import com.baedalping.delivery.global.common.exception.ErrorCode;
+import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,8 +25,10 @@ public class ReviewService {
     private final StoreRepository storeRepository;
     private final OrderRepository orderRepository;
     private final ReviewRepository reviewRepository;
+    private final CacheManager cacheManager; // CacheManager를 주입받습니다.
 
 
+    @Transactional
     public Review createReview(ReviewRequestDto reviewRequest, Long userId) {
         // 주문 확인 및 리뷰가 이미 존재하는지 검증
         Order order = orderRepository.findById(UUID.fromString(reviewRequest.getOrderId()))
@@ -51,7 +56,15 @@ public class ReviewService {
         // 주문에 리뷰 연결
         order.setReview(review);
 
+        // 트랜잭션이 완료된 후 캐시 무효화 수행
+        clearAverageRatingCache(order.getStore().getStoreId());
+
         return reviewRepository.save(review);
+    }
+
+    public void clearAverageRatingCache(UUID storeId) {
+        // CacheManager를 사용하여 직접 캐시 무효화
+        Objects.requireNonNull(cacheManager.getCache("averageRatingCache")).evict(storeId);
     }
 
     public List<Review> getReviewsByStore(UUID storeId) {
@@ -79,14 +92,33 @@ public class ReviewService {
         // 신고 처리
         review.setIsReported(true);
         review.setReportMessage(reportRequest.getReportMessage());
+
+        // 트랜잭션이 완료된 후 캐시 무효화 수행
+        clearAverageRatingCache(review.getStore().getStoreId());
         return reviewRepository.save(review);  // 저장 후 변경된 리뷰 반환
     }
+
+    @Cacheable(value = "averageRatingCache", key = "#storeId")
+    public Double calculateAverageRating(UUID storeId) {
+        existStoreId(storeId);
+
+        List<Review> reviews = reviewRepository.findByStore_StoreIdAndIsReportedFalse(storeId);
+
+        if (reviews.isEmpty()) {
+            return 0.0;
+        }
+
+        double sumRating = reviews.stream().mapToDouble(Review::getRating).sum();
+        return sumRating / reviews.size();
+    }
+
 
     private void existStoreId(UUID storeId) {
         if (!storeRepository.existsById(storeId)) {
             throw new DeliveryApplicationException(ErrorCode.NOT_FOUND_STORE);
         }
     }
+
 
 }
 
