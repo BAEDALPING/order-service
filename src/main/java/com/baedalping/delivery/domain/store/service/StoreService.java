@@ -7,10 +7,12 @@ import com.baedalping.delivery.domain.store.dto.StoreRequestDto;
 import com.baedalping.delivery.domain.store.dto.StoreResponseDto;
 import com.baedalping.delivery.domain.store.entity.Store;
 import com.baedalping.delivery.domain.store.repository.StoreRepository;
+import com.baedalping.delivery.domain.store.storeCategory.entity.StoreCategory;
 import com.baedalping.delivery.domain.store.storeCategory.service.StoreCategoryService;
+import com.baedalping.delivery.domain.user.entity.User;
+import com.baedalping.delivery.domain.user.service.UserService;
 import com.baedalping.delivery.global.common.exception.DeliveryApplicationException;
 import com.baedalping.delivery.global.common.exception.ErrorCode;
-import com.baedalping.delivery.domain.store.storeCategory.entity.StoreCategory;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +30,7 @@ public class StoreService {
   private final StoreRepository storeRepository;
   private final ProductRepository productRepository;
   private final StoreCategoryService storeCategoryService;
+  private final UserService userService;
 
   @Transactional
   public StoreResponseDto createStore(StoreRequestDto storeRequestDto) {
@@ -37,16 +40,27 @@ public class StoreService {
   }
 
   @Transactional
-  public StoreResponseDto updateStore(UUID storeId, StoreRequestDto StoreRequestDto) {
+  public StoreResponseDto updateStore(UUID storeId, StoreRequestDto StoreRequestDto, Long userId) {
     Store store = findById(storeId);
+
+    User user = userService.findByUser(userId);
+    if(!store.getCreatedBy().equals(user.getUsername())){
+      new DeliveryApplicationException(ErrorCode.NOT_PERMITTED_OPTION);
+    }
+
     StoreCategory storeCategory = storeCategoryService.findById(StoreRequestDto.getStoreCategoryId());
     store.updateStore(StoreRequestDto, storeCategory);
     return new StoreResponseDto(store);
   }
 
   @Transactional
-  public void deleteStore(UUID storeId) {
+  public void deleteStore(UUID storeId, Long userId) {
     Store store = findById(storeId);
+
+    User user = userService.findByUser(userId);
+    if(!store.getCreatedBy().equals(user.getUsername())){
+      new DeliveryApplicationException(ErrorCode.NOT_PERMITTED_OPTION);
+    }
 
     List<Product> productList = productRepository.findAllByStore(store);
     for(Product product : productList){

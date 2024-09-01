@@ -20,6 +20,7 @@ public enum ErrorCode {
   DUPLICATE_STORE_CATEGORY_NAME(HttpStatus.NOT_FOUND, "가게 분류가 중복되었습니다."),
 
   NOT_FOUND_STORE(HttpStatus.NOT_FOUND, "가게를 찾을 수 없습니다."),
+  NOT_PERMITTED_OPTION(HttpStatus.NOT_FOUND, "해당 가게 또는 상품 생성자만 수정 삭제가 가능합니다."),
 
   NOT_FOUND_PRODUCT(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다."),
   
