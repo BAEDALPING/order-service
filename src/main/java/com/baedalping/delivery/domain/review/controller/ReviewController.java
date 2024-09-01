@@ -5,6 +5,7 @@ import com.baedalping.delivery.domain.review.dto.ReviewRequestDto;
 import com.baedalping.delivery.domain.review.dto.ReviewResponseDto;
 import com.baedalping.delivery.domain.review.entity.Review;
 import com.baedalping.delivery.domain.review.service.ReviewService;
+import com.baedalping.delivery.domain.store.dto.StoreResponseDto;
 import com.baedalping.delivery.domain.user.dto.UserDetailsImpl;
 import com.baedalping.delivery.global.common.ApiResponse;
 import jakarta.validation.Valid;
@@ -34,18 +35,15 @@ public class ReviewController {
     @PostMapping
     public ApiResponse<ReviewResponseDto> createReview(
         @RequestBody @Valid ReviewRequestDto reviewRequest,
-        @AuthenticationPrincipal UserDetailsImpl userDetails ) {
+        @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
         Long userId = userDetails.getUserId();
         Review review = reviewService.createReview(reviewRequest, userId);
         return ApiResponse.created(new ReviewResponseDto(review));
     }
 
     @GetMapping
-    public ApiResponse<List<ReviewResponseDto>> getReviewsByStore(
-        @RequestParam UUID storeId,
-        @AuthenticationPrincipal UserDetailsImpl userDetails) {
-
-        Long userId = userDetails.getUserId(); // 현재 사용자 ID 가져오기
+    public ApiResponse<List<ReviewResponseDto>> getReviewsByStore(@RequestParam UUID storeId) {
         List<Review> reviews = reviewService.getReviewsByStore(storeId);
         List<ReviewResponseDto> response = reviews.stream()
             .map(ReviewResponseDto::new)
@@ -59,11 +57,20 @@ public class ReviewController {
     public ApiResponse<ReviewResponseDto> reportReview(
         @PathVariable UUID reviewId,
         @RequestBody @Valid ReportReviewRequestDto reportRequest,
-        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
 
         Long userId = userDetails.getUserId();
         Review reportedReview = reviewService.reportReview(reviewId, reportRequest, userId);
         return ApiResponse.ok(new ReviewResponseDto(reportedReview));
+    }
+
+
+    // 특정 가게의 평균 평점 계산 API
+    @GetMapping("/store/{storeId}/average-rating")
+    public ApiResponse<Double> getAverageRatingByStore(@PathVariable UUID storeId) {
+        Double averageRating = reviewService.calculateAverageRating(storeId);
+        return ApiResponse.ok(averageRating);
     }
 
 }
