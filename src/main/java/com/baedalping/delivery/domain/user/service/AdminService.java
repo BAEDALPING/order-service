@@ -17,7 +17,7 @@ public class AdminService {
   private final UserRepository userRepository;
 
   @Transactional
-  @CacheEvict(cacheNames = "roleCache", key = "#user.email")
+  @CacheEvict(cacheNames = "roleCache", key = "#result.email")
   public UserAuthorityResponseDto updateUserRole(Long userId, UserRole role) {
     User user = findByUserId(userId);
     user.updateUserRole(role);
