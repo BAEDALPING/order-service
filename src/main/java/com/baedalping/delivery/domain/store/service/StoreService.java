@@ -45,7 +45,7 @@ public class StoreService {
 
     User user = userService.findByUser(userId);
     if(!store.getCreatedBy().equals(user.getUsername())){
-      new DeliveryApplicationException(ErrorCode.NOT_PERMITTED_OPTION);
+      throw new DeliveryApplicationException(ErrorCode.NOT_PERMITTED_OPTION);
     }
 
     StoreCategory storeCategory = storeCategoryService.findById(StoreRequestDto.getStoreCategoryId());
@@ -59,7 +59,7 @@ public class StoreService {
 
     User user = userService.findByUser(userId);
     if(!store.getCreatedBy().equals(user.getUsername())){
-      new DeliveryApplicationException(ErrorCode.NOT_PERMITTED_OPTION);
+      throw new DeliveryApplicationException(ErrorCode.NOT_PERMITTED_OPTION);
     }
 
     List<Product> productList = productRepository.findAllByStore(store);
