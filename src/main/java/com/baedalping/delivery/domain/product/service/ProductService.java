@@ -50,7 +50,7 @@ public class ProductService {
 
     User user = userService.findByUser(userId);
     if(!product.getCreatedBy().equals(user.getUsername())){
-      new DeliveryApplicationException(ErrorCode.NOT_PERMITTED_OPTION);
+      throw new DeliveryApplicationException(ErrorCode.NOT_PERMITTED_OPTION);
     }
 
     product.updateProduct(ProductRequestDto, productCategory, store);
@@ -63,7 +63,7 @@ public class ProductService {
     User user = userService.findByUser(userId);
 
     if(!product.getCreatedBy().equals(user.getUsername())){
-      new DeliveryApplicationException(ErrorCode.NOT_PERMITTED_OPTION);
+      throw new DeliveryApplicationException(ErrorCode.NOT_PERMITTED_OPTION);
     }
 
     findById(productId).delete(null);
