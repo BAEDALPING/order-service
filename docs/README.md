@@ -45,6 +45,19 @@
     </tbody>
 </table>
 
+## ⚙ 기술 스택
+- <img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=OpenJDK&logoColor=white"> : 주 언어로 사용되었습니다.
+- <img src="https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=Spring&logoColor=white"> : 프로젝트의 백엔드 개발에 사용되었습니다
+- - <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"> : 프로젝트의 메인 프레임워크로 사용되었습니다.
+- - <img src="https://img.shields.io/badge/Spring Security-6DB33F?style=for-the-badge&logo=Spring Security&logoColor=white"> : 보안 기능을 구현하는 데 사용되었습니다.
+- - <img src="https://img.shields.io/badge/Spring Cloud-6DB33F?style=for-the-badge&logo=Spring cloud&logoColor=white"> : 클라우드 환경에서의 마이크로서비스 아키텍처를 구현하는 데 사용되었습니다.
+- <img src="https://img.shields.io/badge/Hibernate-59666C?style=for-the-badge&logo=Hibernate&logoColor=white"> : 데이터베이스 ORM(Object-Relational Mapping) 프레임워크로 사용되었습니다.
+- <img src="https://img.shields.io/badge/Amazon%20RDS-527FFF?style=for-the-badge&logo=Amazon%20RDS&logoColor=white"> : 관계형 데이터베이스 서비스로 사용되었습니다.
+- <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=PostgreSQL&logoColor=white"> : 관계형 데이터베이스로 사용되었습니다.
+- <img src="https://img.shields.io/badge/Amazon%20ElastiCache-C925D1?style=for-the-badge&logo=amazonelasticache&logoColor=white"> : 캐싱 서비스로 사용되었습니다.
+- <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=Redis&logoColor=white"> : 캐싱 사용을 위해 사용되었습니다.
+- <img src="https://img.shields.io/badge/Amazon%20EC2-FF9900?style=for-the-badge&logo=Amazon%20EC2&logoColor=white"> : 애플리케이션의 서버 호스팅에 사용되었습니다.
+
 ## 📄 서비스 구성 및 실행방법 (Service Configuration and How to Run)
 
 ### 필수 설치 사항 (Prerequisites)
@@ -69,13 +82,13 @@ git clone https://github.com/BAEDALPING/eureka-server.git
 git clone https://github.com/BAEDALPING/gateway-server.git
 git clone https://github.com/BAEDALPING/order-service.git
 ```
-4. Eureka Server 실행
+4. Eureka Server 실행 [Eureka server Repo](https://github.com/BAEDALPING/eureka-server)
 ```bash
 cd eureka-server
 ./gradlew clean build  # 프로젝트 빌드
 ./gradlew bootRun      # Eureka Server 실행
 ```
-5. Gateway Server yml 설정 후 실행
+5. Gateway Server yml 설정 후 실행 [Gateway server Repo](https://github.com/BAEDALPING/gateway-server)
 - appication.yml 수정
   - src/main/java/com.baedalping.gateway/resources/appication.yml
   - ${JWT_SECRET} 값 설정 (Order-Service 프로젝트와 같은 값 사용)
@@ -99,19 +112,6 @@ cd order-service
 
 ## 📚 ERD 다이어그램
 ![img.png](ERD.png)
-
-## ⚙ 기술 스택
-- <img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=OpenJDK&logoColor=white"> : 주 언어로 사용되었습니다.
-- <img src="https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=Spring&logoColor=white"> : 프로젝트의 백엔드 개발에 사용되었습니다
-- - <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"> : 프로젝트의 메인 프레임워크로 사용되었습니다.
-- - <img src="https://img.shields.io/badge/Spring Security-6DB33F?style=for-the-badge&logo=Spring Security&logoColor=white"> : 보안 기능을 구현하는 데 사용되었습니다.
-- - <img src="https://img.shields.io/badge/Spring Cloud-6DB33F?style=for-the-badge&logo=Spring cloud&logoColor=white"> : 클라우드 환경에서의 마이크로서비스 아키텍처를 구현하는 데 사용되었습니다.
-- <img src="https://img.shields.io/badge/Hibernate-59666C?style=for-the-badge&logo=Hibernate&logoColor=white"> : 데이터베이스 ORM(Object-Relational Mapping) 프레임워크로 사용되었습니다.
-- <img src="https://img.shields.io/badge/Amazon%20RDS-527FFF?style=for-the-badge&logo=Amazon%20RDS&logoColor=white"> : 관계형 데이터베이스 서비스로 사용되었습니다.
-- <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=PostgreSQL&logoColor=white"> : 관계형 데이터베이스로 사용되었습니다.
-- <img src="https://img.shields.io/badge/Amazon%20ElastiCache-C925D1?style=for-the-badge&logo=amazonelasticache&logoColor=white"> : 캐싱 서비스로 사용되었습니다.
-- <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=Redis&logoColor=white"> : 캐싱 사용을 위해 사용되었습니다.
-- <img src="https://img.shields.io/badge/Amazon%20EC2-FF9900?style=for-the-badge&logo=Amazon%20EC2&logoColor=white"> : 애플리케이션의 서버 호스팅에 사용되었습니다.
 
 ## 🔥 아키텍쳐
 ![img.png](Architecture.png)
